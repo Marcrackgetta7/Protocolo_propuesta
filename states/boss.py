@@ -56,6 +56,7 @@ class Boss(BaseState):
         self.yo_x, self.yo_y = -100, -100
         self.es_partida = True
         self.fuente_ui = pygame.font.SysFont("consolas", 16, bold=True)
+        self.boss_x, self.boss_y = config.WIDTH / 2, 100
 
     def startup(self):
         self.jugador = Player(config.WIDTH / 2, config.HEIGHT - 100)
@@ -70,6 +71,7 @@ class Boss(BaseState):
         self.logro_pacifista_entregado = "Pacifista" in datos_guardados.get("secretos", [])
         
         self.yo_x, self.yo_y = -100, -100
+        self.boss_x, self.boss_y = config.WIDTH / 2, 100
         self.compañero.mostrar_mensaje("¡CUIDADO! Hemos despertado al Núcleo. ¡Dispara con ESPACIO!", id_voz="v_f3_in")
         audio.reproducir_musica("assets/audio/Jefe_dark.ogg", volumen=0.5)
 

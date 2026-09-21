@@ -64,6 +64,11 @@ def detener_sonido(nombre):
 def reproducir_musica(ruta, volumen=0.4, loop=-1):
     global _musica_actual, _musica_vol_original
     if os.path.exists(ruta):
+        if _musica_actual == ruta and pygame.mixer.music.get_busy():
+            _musica_vol_original = volumen
+            pygame.mixer.music.set_volume(volumen * _mult_musica)
+            return
+            
         _musica_actual = ruta
         _musica_vol_original = volumen
         pygame.mixer.music.load(ruta)
