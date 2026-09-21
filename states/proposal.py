@@ -18,6 +18,7 @@ class Proposal(BaseState):
         self.mostrar_botones = False
         self.error_no = False
         self.timer = 0.0
+        self.timer_error = 0.0
 
     def startup(self):
         audio.detener_musica()
@@ -29,6 +30,7 @@ class Proposal(BaseState):
         self.mostrar_botones = False
         self.error_no = False
         self.timer = 0.0
+        self.timer_error = 0.0
 
     def manejar_eventos(self, evento):
         if self.mostrar_botones and evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
@@ -41,7 +43,7 @@ class Proposal(BaseState):
             elif self.rect_no.collidepoint(pos_raton):
                 audio.reproducir("explosion")
                 self.error_no = True
-                self.timer = 0.0
+                self.timer_error = 0.0
 
     def actualizar(self, dt):
         if self.escritor:
@@ -52,8 +54,8 @@ class Proposal(BaseState):
                     self.mostrar_botones = True
                     
         if self.error_no:
-            self.timer += dt
-            if self.timer > 2.0:
+            self.timer_error += dt
+            if self.timer_error > 2.0:
                 self.error_no = False
 
     def dibujar(self, superficie):

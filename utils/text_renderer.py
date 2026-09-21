@@ -22,18 +22,18 @@ class TypewriterText:
                 self.current_text = self.text[:self.index]
                 
                 if self.text[self.index - 1] != " " and self.text[self.index - 1] != "\n":
-                    # Al poner parar_anterior=True, si tu archivo es muy largo, solo sonará una fracción 
                     audio.reproducir("tecla", anti_spam_ms=40, parar_anterior=True)
                     
                 if self.index >= len(self.text):
                     self.finished = True
-                    # Cuando la frase termina, callamos el sonido a la fuerza
                     audio.detener_sonido("tecla") 
                     
-    def dibujar(self, superficie):
+    def dibujar(self, superficie, alpha=255):
         lineas = self.current_text.split('\n')
         y_offset = self.pos[1]
         for linea in lineas:
             texto_surface = self.font.render(linea, True, config.COLOR_TEXT)
+            if alpha < 255:
+                texto_surface.set_alpha(alpha) # Vuelve el texto transparente
             superficie.blit(texto_surface, (self.pos[0], y_offset))
             y_offset += 30

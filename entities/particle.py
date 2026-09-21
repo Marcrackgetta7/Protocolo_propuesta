@@ -1,6 +1,5 @@
 import pygame
 import random
-import config
 
 class Particle:
     def __init__(self, x, y, color):
@@ -22,7 +21,7 @@ class Particle:
         self.tamaño -= 0.1 * 60 * dt
 
     def dibujar(self, superficie):
-        if self.tamaño > 0 and self.vida > 0:
+        if int(self.tamaño) > 0 and self.vida > 0:
             surf = pygame.Surface((int(self.tamaño), int(self.tamaño)))
             surf.fill(self.color)
             # El modo de fusión BLEND_ADD para el efecto de luz y energía

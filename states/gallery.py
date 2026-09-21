@@ -13,32 +13,43 @@ class Gallery(BaseState):
         self.next_state = "PROPOSAL" 
         self.jugador = None
         self.cam_x = 0
-        # ¡Nivel mucho más largo para acomodar las 4 fotos y los 4 mensajes!
-        self.largo_nivel = 7500 
+        # Nivel extendido a 11000 píxeles para acomodar 5 fotos y 7 textos
+        self.largo_nivel = 11000 
         self.fuente_fotos = pygame.font.SysFont("consolas", 20)
         self.fuente_cartas = pygame.font.SysFont("consolas", 22, italic=True)
         self.tiempo_portal = 0.0
 
-        # SECCIÓN 1: FOTOS (Imágenes con textos cortitos)
+        # SECCIÓN 1: FOTOS (5 Fotos separadas cada 1600 píxeles)
         self.recuerdos = [
             {"x": 600,  "ruta": "assets/img/foto1.jpg", "texto": "Nuestra primera locura...\n¿Te acuerdas?", "escritor": None},
             {"x": 2200, "ruta": "assets/img/foto2.jpg", "texto": "Tantas tazas de café para no dormir.", "escritor": None},
             {"x": 3800, "ruta": "assets/img/foto3.jpg", "texto": "Y aunque a veces soy un enano terco...", "escritor": None},
-            {"x": 5400, "ruta": "assets/img/foto4.jpg", "texto": "Siempre has estado ahí para mí.", "escritor": None}
+            {"x": 5400, "ruta": "assets/img/foto4.jpg", "texto": "Siempre has estado ahí para mí.", "escritor": None},
+            {"x": 7000, "ruta": "assets/img/foto5.jpg", "texto": "Cada momento a tu lado es especial.", "escritor": None}
         ]
         
-        # SECCIÓN 2: MENSAJES EXTENSOS (Cartas flotantes entre las fotos)
+        # SECCIÓN 2: MENSAJES EXTENSOS (Alternan con las fotos y al final hay 3 seguidos)
         # Puedes escribir párrafos largos usando \n para saltar de línea.
         self.mensajes_largos = [
+            # Textos alternados entre las fotos
             {"x": 1400, "texto": "A lo largo de todo este tiempo compartiendo juntos,\nme he dado cuenta de algo muy importante.\nAlgo que las líneas de código no pueden ocultar.", "escritor": None},
             
-            {"x": 3000, "texto": "Más allá de las risas, los proyectos y las madrugadas,\nte has convertido en mi lugar seguro.\nLa persona con la que quiero compartirlo todo.", "escritor": None},
+            {"x": 3000, "texto": "Más allá de las risas, los proyectos y las madrugadas,\nte has convertido en mi lugar seguro.", "escritor": None},
             
-            {"x": 4600, "texto": "No quería que este juego fuera solo un proyecto escolar más.\nQuería que fuera algo inolvidable para los dos.\nUna prueba de lo mucho que me importas.", "escritor": None},
+            {"x": 4600, "texto": "No quería que este juego fuera solo un proyecto más.\nQuería que fuera algo inolvidable para los dos.", "escritor": None},
             
-            {"x": 6200, "texto": "Así que, antes de que cruces este último umbral...\nQuiero que leas con atención la siguiente pantalla.\nRespira profundo.", "escritor": None}
+            {"x": 6200, "texto": "Una pequeña prueba de todo lo que significas para mí.", "escritor": None},
+            
+            # --- LOS 3 TEXTOS SEGUIDOS FINALES ---
+            # Edita estos textos con total libertad para expresarte.
+            {"x": 7800, "texto": "[ESPACIO PARA EXPRESARTE 1]\nAquí puedes escribir sobre cómo te sentiste al conocerla,\no algún detalle muy específico que solo ustedes entiendan.", "escritor": None},
+            
+            {"x": 8600, "texto": "[ESPACIO PARA EXPRESARTE 2]\nAquí puedes hablar sobre lo que admiras de ella,\nsu forma de ser, o cómo te hace sentir día a día.", "escritor": None},
+            
+            {"x": 9400, "texto": "Así que, antes de que cruces este último umbral...\nQuiero que leas con atención la siguiente pantalla.\nRespira profundo.", "escritor": None}
         ]
         
+        # Cargar imágenes de forma segura
         for rec in self.recuerdos:
             if os.path.exists(rec["ruta"]):
                 img = pygame.image.load(rec["ruta"]).convert_alpha()
@@ -59,7 +70,7 @@ class Gallery(BaseState):
         for rec in self.recuerdos: rec["escritor"] = None
         for msg in self.mensajes_largos: msg["escritor"] = None
             
-        audio.reproducir_musica("assets/audio/bgm_final.ogg", volumen=0.5)
+        audio.reproducir_musica("assets/audio/Final_pasillo.ogg", volumen=0.5)
 
     def manejar_eventos(self, evento):
         pass 
@@ -74,7 +85,7 @@ class Gallery(BaseState):
             
         if self.jugador.x < 50: self.jugador.x = 50
         
-        # El portal está casi al final (7000px)
+        # El portal está cerca del final (10600px)
         if self.jugador.x > self.largo_nivel - 300:
             self.done = True
 
@@ -98,6 +109,7 @@ class Gallery(BaseState):
     def dibujar(self, superficie):
         superficie.fill((10, 10, 15)) 
         
+        # Piso
         pygame.draw.line(superficie, (50, 50, 50), (0, config.HEIGHT // 2 + 80), (config.WIDTH, config.HEIGHT // 2 + 80), 2)
 
         # Dibujar Fotos
@@ -127,6 +139,7 @@ class Gallery(BaseState):
             pygame.draw.circle(superficie, config.COLOR_ENERGY, (int(pos_portal), config.HEIGHT // 2), int(radio))
             pygame.draw.circle(superficie, (255, 255, 255), (int(pos_portal), config.HEIGHT // 2), int(radio - 20))
 
+        # Dibujar jugador desplazado por la cámara
         jugador_render_x = self.jugador.x - self.cam_x
         pygame.draw.rect(superficie, config.COLOR_TEXT, 
                          (jugador_render_x - 10, self.jugador.y - 10, 20, 20))

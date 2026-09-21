@@ -21,7 +21,7 @@ class Interlude(BaseState):
         self.escritor = TypewriterText(self.font, texto, (50, config.HEIGHT // 2), speed=0.04)
 
     def manejar_eventos(self, evento):
-        if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE or evento.type == pygame.MOUSEBUTTONDOWN:
+        if (evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE) or evento.type == pygame.MOUSEBUTTONDOWN:
             if self.escritor.finished:
                 self.indice_mensaje += 1
                 if self.indice_mensaje < len(self.mensajes):

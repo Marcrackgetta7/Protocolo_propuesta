@@ -2,7 +2,7 @@ import pygame
 from states.base_state import BaseState
 from utils.vfx import ScreenShake
 from utils import audio 
-from utils import save_manager # <--- Importado aquí
+from utils import save_manager # <--- Importado
 import config
 
 class Credits(BaseState):
@@ -31,7 +31,8 @@ class Credits(BaseState):
         self.timer_final = 0.0
 
     def startup(self):
-        audio.reproducir_musica("assets/audio/bgm_final.ogg", volumen=0.4)
+        # Silencio intencional durante los créditos — no se reproduce música
+        audio.detener_musica()
 
     def manejar_eventos(self, evento):
         pass 
@@ -48,7 +49,8 @@ class Credits(BaseState):
             self.timer_final += dt
             if self.timer_final > 3.0:
                 audio.detener_musica()
-                save_manager.guardar(4) # <--- DESBLOQUEA EL FINAL SECRETO
+                # ¡DESBLOQUEA LA GALERÍA AL TERMINAR LOS CRÉDITOS!
+                save_manager.guardar(8) 
                 self.done = True 
 
     def dibujar(self, superficie):

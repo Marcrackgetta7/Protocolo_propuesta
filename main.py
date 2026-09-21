@@ -3,12 +3,20 @@ import pygame
 import sys
 import config
 from core.state_machine import StateMachine
+from states.auth import Auth 
 from states.main_menu import MainMenu
 from states.intro import Intro
-from states.minigame import Minigame
+from states.achievements import Achievements
+
+from states.minigame import Minigame       
+from states.xmas_minigame import XmasMinigame 
+from states.xmas_maze import XmasMaze       
+from states.xmas_delivery import XmasDelivery 
+from states.xmas_boss import XmasBoss 
+
 from states.maze import Maze 
 from states.boss import Boss 
-from states.gallery import Gallery # <--- Importamos la nueva Galería Secreta
+from states.gallery import Gallery 
 from states.proposal import Proposal
 from states.outro import Outro
 from states.interlude import Interlude 
@@ -22,7 +30,6 @@ def main():
     pygame.init()
     audio.inicializar()
     
-    # --- EFECTOS DE SONIDO ---
     audio.cargar_sonido("tecla", "assets/audio/tecla.wav", volumen=0.2) 
     audio.cargar_sonido("anomalia", "assets/audio/anomalia.wav", volumen=0.6)
     audio.cargar_sonido("disparo_jugador", "assets/audio/disparos.wav", volumen=0.3)
@@ -33,90 +40,89 @@ def main():
     audio.cargar_sonido("laser_final", "assets/audio/Laser_boss_final.wav", volumen=0.8)
     audio.cargar_sonido("laser_fase1", "assets/audio/Laser_fase1.wav", volumen=0.5)
     
-    # --- VOCES IA ---
-    audio.cargar_sonido("v_f1_in", "assets/audio/v_f1_in.wav", volumen=1.0)
-    audio.cargar_sonido("v_f1_mid", "assets/audio/v_f1_mid.wav", volumen=1.0)
-    audio.cargar_sonido("v_f1_fin", "assets/audio/v_f1_fin.wav", volumen=1.0)
-    audio.cargar_sonido("v_f2_in", "assets/audio/v_f2_in.wav", volumen=1.0)
-    audio.cargar_sonido("v_f2_hack", "assets/audio/v_f2_hack.wav", volumen=1.0)
-    audio.cargar_sonido("v_f2_roto", "assets/audio/v_f2_roto.wav", volumen=1.0)
-    audio.cargar_sonido("v_f2_dead", "assets/audio/v_f2_dead.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_in", "assets/audio/v_f3_in.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_esc", "assets/audio/v_f3_esc.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_win", "assets/audio/v_f3_win.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_alert", "assets/audio/v_f3_alert.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_crit", "assets/audio/v_f3_crit.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_sac1", "assets/audio/v_f3_sac1.wav", volumen=1.0)
-    audio.cargar_sonido("v_f3_sac2", "assets/audio/v_f3_sac2.wav", volumen=1.0)
-    
     flags = pygame.SCALED | pygame.RESIZABLE
     pantalla = pygame.display.set_mode((config.WIDTH, config.HEIGHT), flags)
     pygame.display.set_caption("Protocolo: Brecha")
     reloj = pygame.time.Clock()
     filtro_crt = Scanlines()
 
-    textos_inter_1 = [
-        "> ANOMALÍA 01 RECUPERADA...",
-        "> El sistema intenta aislar los recuerdos de nuestra amistad.",
-        "> Te he abierto una puerta trasera. Entra al laberinto oscuro y busca la salida."
-    ]
-    textos_inter_2 = [
-        "> CORTAFUEGOS BURLADOS.",
-        "> Advertencia: Niveles críticos de cafeína detectados en el sistema.",
-        "> Alerta de intrusión: Entidad 'enano' detectada en el sector 4.",
-        "> El núcleo nos ha descubierto... ¡Prepárate para luchar!"
-    ]
+    # --- DIÁLOGOS DE LAS CINEMÁTICAS ---
+    textos_in_1 = ["¡Bienvenida a este Cuento de Navidad!", "Los regalos se han caído del trineo en pleno vuelo.", "¡Ayúdame a atraparlos antes de que se rompan!"]
+    textos_out_1 = ["¡Uf! Salvamos los regalos a tiempo.", "Pero hemos aterrizado en medio de la nada...", "Debemos encontrar el camino en el Bosque Nevado."]
 
-    estado_minigame = Minigame()
-    estado_minigame.next_state = "MAIN_MENU" 
-    estado_maze = Maze()
-    estado_maze.next_state = "MAIN_MENU" 
-    estado_boss = Boss()
-    estado_boss.next_state = "CREDITS" 
-    estado_outro = Outro()
-    estado_outro.next_state = "MAIN_MENU" 
+    textos_in_2 = ["El Bosque Nevado es tranquilo, pero confuso.", "Busca las 4 esferas doradas para activar el portal verde.", "Si te sientes perdida, yo te guiaré."]
+    textos_out_2 = ["¡Encontraste la salida!", "El frío empieza a calar los huesos, pero la aldea está cerca.", "¡Vamos, los niños esperan!"]
+
+    textos_in_3 = ["¡Llegamos a la aldea a tiempo!", "Acércate a las casas para dejar los regalos.", "¡Hazlo rápido, antes de que amanezca en 15 segundos!"]
+    textos_out_3 = ["¡Trabajo perfecto, entregas completadas!", "Espera... ¿qué es ese ruido gigante?", "¡El suelo está temblando!"]
+
+    textos_in_4 = ["¡Oh no! Has despertado al Muñeco Gruñón.", "Lánzale regalos con ESPACIO para calmar su furia.", "¡No dejes que el frío te congele!"]
+    textos_out_4 = ["¡El Muñeco ha sido derrotado!", "Pero algo no está bien...", "La nieve... se está deshaciendo en código fuente...", "[ ALERTA: BRECHA DETECTADA ]"]
+
+    textos_out_5 = ["> ANOMALÍA RECUPERADA...", "> El sistema central ha detectado nuestra presencia.", "> Nos han encerrado en el laberinto de cortafuegos."]
+
+    textos_in_6 = ["> Nivel de seguridad máximo.", "> El laberinto está patrullado por Limpiadores.", "> Rompe los cortafuegos y encuentra la salida."]
+    textos_out_6 = ["> CORTAFUEGOS DERRIBADOS.", "> Acceso al Núcleo principal concedido.", "> Prepárate... esto no será nada fácil."]
+
+    textos_in_7 = ["> ADVERTENCIA: NÚCLEO INESTABLE.", "> Su escudo es impenetrable a largo plazo.", "> Mantente con vida y esquiva el barrido láser."]
 
     diccionario_estados = {
+        "AUTH": Auth(),
         "MAIN_MENU": MainMenu(),
-        "INTRO": Intro(),
-        "MINIGAME": estado_minigame, 
-        "INTER_1": Interlude(textos_inter_1, "MAZE"),   
-        "MAZE": estado_maze, 
-        "INTER_2": Interlude(textos_inter_2, "BOSS"),   
-        "BOSS": estado_boss, 
+        "INTRO": Intro(), # Intro especial glitcheada de la fase 5
+        "ACHIEVEMENTS": Achievements(),
+        
+        # FLUJOS CINEMÁTICOS
+        "INTRO_1": Interlude(textos_in_1, "XMAS_MINIGAME"),
+        "XMAS_MINIGAME": XmasMinigame(), 
+        "OUTRO_1": Interlude(textos_out_1, "MAIN_MENU"),
+        
+        "INTRO_2": Interlude(textos_in_2, "XMAS_MAZE"),   
+        "XMAS_MAZE": XmasMaze(), 
+        "OUTRO_2": Interlude(textos_out_2, "MAIN_MENU"),
+        
+        "INTRO_3": Interlude(textos_in_3, "XMAS_DELIVERY"),   
+        "XMAS_DELIVERY": XmasDelivery(), 
+        "OUTRO_3": Interlude(textos_out_3, "MAIN_MENU"),
+        
+        "INTRO_4": Interlude(textos_in_4, "XMAS_BOSS"),   
+        "XMAS_BOSS": XmasBoss(), 
+        "OUTRO_4": Interlude(textos_out_4, "MAIN_MENU"),
+        
+        "MINIGAME": Minigame(), 
+        "OUTRO_5": Interlude(textos_out_5, "MAIN_MENU"),
+        
+        "INTRO_6": Interlude(textos_in_6, "HACK_MAZE"),   
+        "HACK_MAZE": Maze(), 
+        "OUTRO_6": Interlude(textos_out_6, "MAIN_MENU"),
+        
+        "INTRO_7": Interlude(textos_in_7, "HACK_BOSS"),   
+        "HACK_BOSS": Boss(),
+        
         "CREDITS": Credits(),     
-        "GALLERY": Gallery(), # <--- Integramos el nivel secreto                      
+        "GALLERY": Gallery(),                     
         "PROPOSAL": Proposal(),
-        "OUTRO": estado_outro
+        "OUTRO": Outro()
     }
     
-    maquina = StateMachine(diccionario_estados, "MAIN_MENU")
+    maquina = StateMachine(diccionario_estados, "AUTH")
 
     ejecutando = True
     while ejecutando:
         dt = reloj.tick(config.FPS) / 1000.0 
-
         for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                ejecutando = False
+            if evento.type == pygame.QUIT: ejecutando = False
             maquina.manejar_eventos(evento)
-
-        if maquina.state.quit:
-            ejecutando = False
+        if maquina.state.quit: ejecutando = False
 
         estado_antes = maquina.state_name
         maquina.actualizar(dt)
         estado_despues = maquina.state_name
         
-        # INTERRUPTOR GENERAL: Si cambiamos de pantalla, MATAMOS el sonido de tecleo
         if estado_antes != estado_despues:
             audio.detener_sonido("tecla")
-            
             if estado_despues == "MAIN_MENU":
-                if estado_antes == "MINIGAME": save_manager.guardar(2) 
-                elif estado_antes == "MAZE": save_manager.guardar(3) 
-                elif estado_antes == "CREDITS": save_manager.guardar(4) 
-                elif estado_antes == "OUTRO": save_manager.guardar(5) 
+                audio.detener_musica() 
 
         maquina.dibujar(pantalla)
         filtro_crt.dibujar(pantalla)

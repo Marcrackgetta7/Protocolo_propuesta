@@ -1,49 +1,52 @@
 import pygame
 from utils.text_renderer import TypewriterText
-from utils import audio # Importamos el gestor de audio
+from utils import audio
 import config
 
 class CompanionUI:
     def __init__(self):
-        self.fuente_nombre = pygame.font.SysFont("consolas", 20, bold=True)
-        self.fuente_texto = pygame.font.SysFont("consolas", 20)
-        self.color_nombre = (0, 255, 100) 
-        self.color_fondo = (10, 10, 10, 220) 
-        self.rect_fondo = pygame.Rect(0, config.HEIGHT - 80, config.WIDTH, 80)
-        
-        self.activo = False
+        self.fuente = pygame.font.SysFont("consolas", 18, bold=True)
         self.escritor = None
-        self.nombre = "[MARCELO]:"
+        self.retrato = pygame.Surface((60, 60))
+        self.retrato.fill((0, 255, 100)) 
+        self.y_fija = config.HEIGHT - 100 # Se queda siempre abajo
 
     def mostrar_mensaje(self, texto, id_voz=None):
-        self.activo = True
-        self.escritor = TypewriterText(self.fuente_texto, texto, (150, config.HEIGHT - 50), speed=0.01)
-        
-        # Lógica de audio para el diálogo
-        if id_voz:
-            audio.reproducir(id_voz) # Si le pasas el ID de tu grabación, suena tu voz
-        else:
-            audio.reproducir("notificacion") # Pitido por defecto estilo radio
-
-    def ocultar(self):
-        self.activo = False
+        audio.detener_sonido("tecla")
+        self.escritor = TypewriterText(self.fuente, texto, (110, self.y_fija + 20), speed=0.04)
+        if id_voz: audio.reproducir(id_voz, parar_anterior=True)
 
     def actualizar(self, dt):
-        if self.activo and self.escritor:
-            self.escritor.actualizar(dt)
+        if self.escritor: self.escritor.actualizar(dt)
 
-    def dibujar(self, superficie):
-        if not self.activo:
-            return
+    def dibujar(self, superficie, jugador_y=0):
+        # --- TRANSPARENCIA DINÁMICA ---
+        alfa_fondo = 220
+        alfa_borde = 255
+        alfa_texto = 255
         
-        surf_fondo = pygame.Surface((self.rect_fondo.width, self.rect_fondo.height), pygame.SRCALPHA)
-        surf_fondo.fill(self.color_fondo)
-        superficie.blit(surf_fondo, (self.rect_fondo.x, self.rect_fondo.y))
-        
-        pygame.draw.line(superficie, self.color_nombre, (0, self.rect_fondo.y), (config.WIDTH, self.rect_fondo.y), 2)
-        
-        nombre_surf = self.fuente_nombre.render(self.nombre, True, self.color_nombre)
-        superficie.blit(nombre_surf, (20, config.HEIGHT - 50))
-        
+        # Si el jugador baja al territorio de la caja, esta se vuelve casi invisible
+        if jugador_y > config.HEIGHT - 150:
+            alfa_fondo = 40  # Caja fantasma
+            alfa_borde = 50  # Borde fantasma
+            alfa_texto = 100 # Texto legible pero transparente
+            self.retrato.set_alpha(50)
+        else:
+            self.retrato.set_alpha(255)
+
         if self.escritor:
-            self.escritor.dibujar(superficie)
+            self.escritor.pos = (110, self.y_fija + 20)
+
+        # Fondos usando SRCALPHA para aceptar transparencias
+        caja = pygame.Surface((config.WIDTH - 40, 80), pygame.SRCALPHA)
+        caja.fill((10, 10, 15, alfa_fondo))
+        superficie.blit(caja, (20, self.y_fija))
+        
+        borde = pygame.Surface((config.WIDTH - 40, 80), pygame.SRCALPHA)
+        pygame.draw.rect(borde, (0, 255, 100, alfa_borde), (0, 0, config.WIDTH - 40, 80), 2)
+        superficie.blit(borde, (20, self.y_fija))
+        
+        superficie.blit(self.retrato, (30, self.y_fija + 10))
+
+        if self.escritor: 
+            self.escritor.dibujar(superficie, alpha=alfa_texto)
