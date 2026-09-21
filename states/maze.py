@@ -96,7 +96,7 @@ class Maze(BaseState):
             
         if self.ganado:
             self.timer_victoria += dt
-            if self.timer_victoria > 2.5:
+            if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=7) 
                 self.done = True
             return

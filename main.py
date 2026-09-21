@@ -76,26 +76,26 @@ def main():
         # FLUJOS CINEMÁTICOS
         "INTRO_1": Interlude(textos_in_1, "XMAS_MINIGAME"),
         "XMAS_MINIGAME": XmasMinigame(), 
-        "OUTRO_1": Interlude(textos_out_1, "MAIN_MENU"),
+        "OUTRO_1": Interlude(textos_out_1, "INTRO_2"),
         
         "INTRO_2": Interlude(textos_in_2, "XMAS_MAZE"),   
         "XMAS_MAZE": XmasMaze(), 
-        "OUTRO_2": Interlude(textos_out_2, "MAIN_MENU"),
+        "OUTRO_2": Interlude(textos_out_2, "INTRO_3"),
         
         "INTRO_3": Interlude(textos_in_3, "XMAS_DELIVERY"),   
         "XMAS_DELIVERY": XmasDelivery(), 
-        "OUTRO_3": Interlude(textos_out_3, "MAIN_MENU"),
+        "OUTRO_3": Interlude(textos_out_3, "INTRO_4"),
         
         "INTRO_4": Interlude(textos_in_4, "XMAS_BOSS"),   
         "XMAS_BOSS": XmasBoss(), 
         "OUTRO_4": Interlude(textos_out_4, "MAIN_MENU"),
         
         "MINIGAME": Minigame(), 
-        "OUTRO_5": Interlude(textos_out_5, "MAIN_MENU"),
+        "OUTRO_5": Interlude(textos_out_5, "INTRO_6"),
         
         "INTRO_6": Interlude(textos_in_6, "HACK_MAZE"),   
         "HACK_MAZE": Maze(), 
-        "OUTRO_6": Interlude(textos_out_6, "MAIN_MENU"),
+        "OUTRO_6": Interlude(textos_out_6, "INTRO_7"),
         
         "INTRO_7": Interlude(textos_in_7, "HACK_BOSS"),   
         "HACK_BOSS": Boss(),

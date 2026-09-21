@@ -68,7 +68,7 @@ class XmasBoss(BaseState):
         
         if self.ganado:
             self.timer_victoria += dt
-            if self.timer_victoria > 3.0:
+            if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=5) 
                 self.done = True
             return
@@ -78,7 +78,7 @@ class XmasBoss(BaseState):
 
         if self.congelado:
             self.timer_descongelar -= dt
-            self.salud_boss = min(100, self.salud_boss + (15 * dt)) 
+            self.salud_boss = min(100, self.salud_boss + (5 * dt)) 
             if self.timer_descongelar <= 0:
                 self.congelado, self.congelacion = False, 0.0
         else:
@@ -152,7 +152,7 @@ class XmasBoss(BaseState):
                 self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Sangre Caliente (Cero congelaciones)!")
                 audio.reproducir("tecla")
             else:
-                self.compañero.mostrar_mensaje("¡Muñeco de nieve destruido! Volviendo al menú...")
+                self.compañero.mostrar_mensaje("¡Muñeco de nieve destruido! Avanzando...")
 
     def dibujar(self, superficie):
         superficie.fill((20, 40, 60))

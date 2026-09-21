@@ -55,7 +55,7 @@ class XmasMinigame(BaseState):
         
         if self.ganado:
             self.timer_victoria += dt
-            if self.timer_victoria > 2.5:
+            if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=2)
                 self.done = True
             return
@@ -90,7 +90,7 @@ class XmasMinigame(BaseState):
                         self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Manos Ágiles!")
                         audio.reproducir("tecla")
                     else:
-                        self.compañero.mostrar_mensaje("¡Nivel Completado! Volviendo al menú...")
+                        self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
                         
             elif r.y > config.HEIGHT:
                 self.regalos.remove(r)

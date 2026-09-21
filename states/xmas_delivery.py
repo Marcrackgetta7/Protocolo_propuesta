@@ -31,7 +31,7 @@ class XmasDelivery(BaseState):
         self.compañero = CompanionUI()
         self.casas = []
         self.entregas = 0
-        self.tiempo = 15.0 
+        self.tiempo = 25.0 
         self.ganado = False
         self.es_partida = True
         self.timer_victoria = 0.0
@@ -44,13 +44,13 @@ class XmasDelivery(BaseState):
         self.casas_entregadas = 0
         self.entregas = 0
         self.timer_fase = 0.0
-        self.tiempo = 15.0
+        self.tiempo = 25.0
         self.ganado = False
         self.timer_victoria = 0.0
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
         
         # Generar casas aleatorias sin que se solapen mucho
-        for _ in range(5):
+        for _ in range(8):
             x = random.randint(200, config.WIDTH - 100)
             y = random.randint(100, config.HEIGHT - 100)
             # Intentar separar las casas
@@ -80,7 +80,7 @@ class XmasDelivery(BaseState):
         
         if self.ganado:
             self.timer_victoria += dt
-            if self.timer_victoria > 2.5:
+            if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=4) 
                 self.done = True
             return
@@ -110,21 +110,21 @@ class XmasDelivery(BaseState):
                 c.entregado = True
                 self.entregas += 1
                 audio.reproducir("anomalia")
-                if self.entregas >= 5:
+                if self.entregas >= 8:
                     self.ganado = True
                     if self.tiempo >= 5.0 and "L3" not in self.logros_obtenidos:
                         save_manager.guardar(secreto="L3")
                         self.compañero.mostrar_mensaje(f"¡LOGRO DESBLOQUEADO: Santa Veloz! (+{self.tiempo:.1f}s sobrantes)")
                         audio.reproducir("tecla")
                     else:
-                        self.compañero.mostrar_mensaje("¡Nivel Completado! Volviendo al menú...")
+                        self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
 
     def dibujar(self, superficie):
         superficie.fill((20, 40, 60))
         for c in self.casas: c.dibujar(superficie)
         self.jugador.dibujar(superficie)
 
-        txt = self.fuente_ui.render(f"Tiempo: {max(0, self.tiempo):.1f}s | Entregas: {self.entregas}/5", True, (255, 50, 50) if self.tiempo < 5 else (255, 255, 255))
+        txt = self.fuente_ui.render(f"Tiempo: {max(0, self.tiempo):.1f}s | Entregas: {self.entregas}/8", True, (255, 50, 50) if self.tiempo < 5 else (255, 255, 255))
         superficie.blit(txt, (20, 20))
         
         if getattr(self, "game_over", False):

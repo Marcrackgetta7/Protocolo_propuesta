@@ -47,6 +47,7 @@ class Boss(BaseState):
         self.salud_jugador, self.escudo_jugador, self.salud_boss = 100, 100, 100
         self.timer_disparo_jugador, self.timer_fase, self.timer_disparo = 0.0, 0.0, 0.0
         self.timer_radial, self.timer_barrido = 0.0, 0.0
+        self.hit_flash_timer = 0.0
         
         self.disparos_hechos = 0
         self.logro_pacifista_entregado = False
@@ -63,6 +64,7 @@ class Boss(BaseState):
         self.estado = "INTRO"
         self.timer_fase, self.timer_disparo, self.timer_radial, self.timer_barrido = 0.0, 0.0, 0.0, 0.0
         self.disparos_hechos = 0
+        self.hit_flash_timer = 0.0
         
         datos_guardados = save_manager.cargar()
         self.logro_pacifista_entregado = "Pacifista" in datos_guardados.get("secretos", [])
@@ -79,6 +81,9 @@ class Boss(BaseState):
         teclas = pygame.key.get_pressed()
         factor_salud = max(0.01, self.salud_boss / 100.0)
         
+        if self.hit_flash_timer > 0:
+            self.hit_flash_timer -= dt
+            
         if self.estado in ["INTRO", "COMBAT", "WARNING"]:
             self.jugador.actualizar(dt, teclas)
             if self.jugador.x < 20: self.jugador.x = 20
@@ -176,6 +181,7 @@ class Boss(BaseState):
             b.actualizar(dt)
             if b.y < 0: self.balas_jugador.remove(b)
             elif math.hypot(self.boss_x - b.x, self.boss_y - b.y) < 50:
+                self.hit_flash_timer = 0.1
                 if b in self.balas_jugador: self.balas_jugador.remove(b)
                 if self.salud_boss > 1: self.salud_boss -= 1
 
@@ -208,8 +214,10 @@ class Boss(BaseState):
             pygame.draw.circle(surf_temp, (0, 255, 100), (int(self.yo_x), int(self.yo_y)), 10)
             pygame.draw.circle(surf_temp, (0, 255, 100, 100), (int(self.yo_x), int(self.yo_y)), min(150, 60 + int(self.timer_fase * 20)), 3) 
 
-        pygame.draw.circle(surf_temp, (100, 0, 0), (int(self.boss_x), int(self.boss_y)), 50)
-        pygame.draw.circle(surf_temp, config.COLOR_DANGER, (int(self.boss_x), int(self.boss_y)), 25)
+        color_ext = (255, 255, 255) if self.hit_flash_timer > 0 else (100, 0, 0)
+        color_int = (255, 255, 255) if self.hit_flash_timer > 0 else config.COLOR_DANGER
+        pygame.draw.circle(surf_temp, color_ext, (int(self.boss_x), int(self.boss_y)), 50)
+        pygame.draw.circle(surf_temp, color_int, (int(self.boss_x), int(self.boss_y)), 25)
 
         surf_temp.blit(self.fuente_ui.render(f"SALUD: {max(0, int(self.salud_jugador))}%", True, config.COLOR_TEXT), (20, 20))
         surf_temp.blit(self.fuente_ui.render(f"ESCUDO: {max(0, int(self.escudo_jugador))}%", True, (0, 200, 255)), (20, 45))

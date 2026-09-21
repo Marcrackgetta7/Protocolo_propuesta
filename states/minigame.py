@@ -51,7 +51,11 @@ class Minigame(BaseState):
     def spawn_laser(self):
         es_horizontal = random.choice([True, False])
         pos = random.randint(50, config.HEIGHT - 50) if es_horizontal else random.randint(50, config.WIDTH - 50)
-        self.lasers.append(Laser(es_horizontal, pos))
+        l = Laser(es_horizontal, pos)
+        factor = self.anomalias_recolectadas * 0.1
+        l.tiempo_aviso = max(0.25, 0.6 - factor)
+        l.tiempo_activo = max(0.15, 0.3 - factor/2)
+        self.lasers.append(l)
         audio.reproducir("laser_fase1", anti_spam_ms=100)
 
     def manejar_eventos(self, evento):
@@ -63,7 +67,7 @@ class Minigame(BaseState):
         
         if self.ganado:
             self.timer_victoria += dt
-            if self.timer_victoria > 2.5:
+            if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=6)
                 self.done = True
             return
@@ -76,12 +80,12 @@ class Minigame(BaseState):
         if self.jugador.y < 20: self.jugador.y = 20
         if self.jugador.y > config.HEIGHT - 20: self.jugador.y = config.HEIGHT - 20
 
-        intervalo_laser = max(0.3, 0.8 - (self.anomalias_recolectadas * 0.25))
+        intervalo_laser = max(0.2, 0.8 - (self.anomalias_recolectadas * 0.15))
         self.timer_laser += dt
         if self.timer_laser >= intervalo_laser: 
             self.spawn_laser()
-            if self.anomalias_recolectadas == 1 and random.random() < 0.4: self.spawn_laser() 
-            elif self.anomalias_recolectadas == 2:
+            if self.anomalias_recolectadas >= 2 and random.random() < 0.4: self.spawn_laser() 
+            elif self.anomalias_recolectadas >= 4:
                 self.spawn_laser() 
                 if random.random() < 0.5: self.spawn_laser() 
             self.timer_laser = 0.0
@@ -103,9 +107,9 @@ class Minigame(BaseState):
                     self.anomalias_recolectadas += 1
                     audio.reproducir("anomalia")
                     
-                    if self.anomalias_recolectadas == 1: self.compañero.mostrar_mensaje("¡Bien! Cuidado, el sistema está acelerando...", id_voz="v_f1_mid")
-                    elif self.anomalias_recolectadas == 2: self.compañero.mostrar_mensaje("¡Solo falta una! ¡Cuidado con el ataque doble!", id_voz="v_f1_fin")
-                    if self.anomalias_recolectadas < 3: self.spawn_anomalia()
+                    if self.anomalias_recolectadas == 2: self.compañero.mostrar_mensaje("¡Bien! Cuidado, el sistema está acelerando...", id_voz="v_f1_mid")
+                    elif self.anomalias_recolectadas == 4: self.compañero.mostrar_mensaje("¡Solo falta una! ¡Cuidado con el ataque múltiple!", id_voz="v_f1_fin")
+                    if self.anomalias_recolectadas < 5: self.spawn_anomalia()
                     else: 
                         self.ganado = True
                         if self.golpes_laser == 0 and "L5" not in self.logros_obtenidos:
@@ -125,6 +129,12 @@ class Minigame(BaseState):
         for laser in self.lasers: laser.dibujar(surf_temp)
         for anomalia in self.anomalias: anomalia.dibujar(surf_temp)
         self.jugador.dibujar(surf_temp)
+        
+        # Add UI counter
+        font = pygame.font.SysFont("consolas", 24, bold=True)
+        txt = font.render(f"Anomalías: {self.anomalias_recolectadas}/5", True, config.COLOR_ENERGY)
+        surf_temp.blit(txt, (20, 20))
+        
         ox, oy = self.shake.obtener_offset()
         superficie.blit(surf_temp, (ox, oy))
         self.compañero.dibujar(superficie, self.jugador.y)
