@@ -38,10 +38,6 @@ class XmasMaze(BaseState):
         self.tiempo_jugado = 0.0
         self.ganado = False
         self.timer_victoria = 0.0
-        
-        self.tiempo_jugado = 0.0
-        self.ganado = False
-        self.timer_victoria = 0.0
 
     def startup(self):
         self.paredes, self.paredes_falsas, self.esferas = [], [], []

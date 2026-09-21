@@ -33,9 +33,9 @@ class XmasDelivery(BaseState):
         self.entregas = 0
         self.tiempo = 15.0 
         self.ganado = False
-        self.energia = 100.0 # Energía del trineo
         self.es_partida = True
         self.timer_victoria = 0.0
+        self.fuente_ui = pygame.font.SysFont("consolas", 24, bold=True)
 
     def startup(self):
         self.jugador = Player(100, config.HEIGHT // 2)
@@ -45,7 +45,6 @@ class XmasDelivery(BaseState):
         self.entregas = 0
         self.timer_fase = 0.0
         self.tiempo = 15.0
-        self.energia = 100.0
         self.ganado = False
         self.timer_victoria = 0.0
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
@@ -59,7 +58,7 @@ class XmasDelivery(BaseState):
             while intentos < 100:
                 colision = False
                 for casa in self.casas:
-                    if math.hypot(casa["rect"].x - x, casa["rect"].y - y) < 140:
+                    if math.hypot(casa.rect.x - x, casa.rect.y - y) < 140:
                         colision = True
                         break
                 if not colision:
@@ -68,7 +67,7 @@ class XmasDelivery(BaseState):
                 y = random.randint(100, config.HEIGHT - 100)
                 intentos += 1
                 
-            self.casas.append({"rect": pygame.Rect(x, y, 60, 60), "entregado": False})
+            self.casas.append(Casa(x, y))
 
         audio.reproducir_musica("assets/audio/fase3_nav.ogg", volumen=0.3)
 
@@ -86,10 +85,20 @@ class XmasDelivery(BaseState):
                 self.done = True
             return
 
+        if getattr(self, "game_over", False):
+            self.timer_game_over += dt
+            if self.timer_game_over > 2.0:
+                self.game_over = False
+                self.startup()
+            return
+            
         self.tiempo -= dt
         if self.tiempo <= 0:
-            audio.reproducir("explosion")
-            self.startup() 
+            if not getattr(self, "game_over", False):
+                self.game_over = True
+                self.timer_game_over = 0.0
+                audio.reproducir("explosion")
+                self.compañero.mostrar_mensaje("¡Se acabó el tiempo! El trineo necesita más energía.")
             return
 
         teclas = pygame.key.get_pressed()
@@ -115,6 +124,15 @@ class XmasDelivery(BaseState):
         for c in self.casas: c.dibujar(superficie)
         self.jugador.dibujar(superficie)
 
-        txt = pygame.font.SysFont("consolas", 24, bold=True).render(f"Tiempo: {max(0, self.tiempo):.1f}s | Entregas: {self.entregas}/5", True, (255, 50, 50) if self.tiempo < 5 else (255, 255, 255))
+        txt = self.fuente_ui.render(f"Tiempo: {max(0, self.tiempo):.1f}s | Entregas: {self.entregas}/5", True, (255, 50, 50) if self.tiempo < 5 else (255, 255, 255))
         superficie.blit(txt, (20, 20))
+        
+        if getattr(self, "game_over", False):
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((255, 50, 50, 100))
+            superficie.blit(overlay, (0, 0))
+            fuente = pygame.font.SysFont("consolas", 40, bold=True)
+            txt_over = fuente.render("TIEMPO AGOTADO", True, (255, 255, 255))
+            superficie.blit(txt_over, txt_over.get_rect(center=(config.WIDTH//2, config.HEIGHT//2)))
+            
         self.compañero.dibujar(superficie, self.jugador.y)

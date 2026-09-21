@@ -43,18 +43,24 @@ class MainMenu(BaseState):
             self.botones["Registro de Logros"] = {"rect": pygame.Rect(config.WIDTH//2 + 20, 410, 300, 40), "fase": 1, "destino": "ACHIEVEMENTS"}
             
             if len(secretos) >= self.TOTAL_LOGROS:
-                self.botones["ARCHIVOS OCULTOS"] = {"rect": pygame.Rect(config.WIDTH//2 - 150, 480, 300, 50), "fase": 8, "destino": "GALLERY"}
+                self.botones["ARCHIVOS OCULTOS"] = {"rect": pygame.Rect(config.WIDTH//2 - 150, 470, 300, 40), "fase": 8, "destino": "GALLERY"}
             else:
-                self.botones[f"FALTAN {self.TOTAL_LOGROS - len(secretos)} LOGROS"] = {"rect": pygame.Rect(config.WIDTH//2 - 150, 480, 300, 50), "fase": 99, "destino": "NONE"}
+                self.botones[f"FALTAN {self.TOTAL_LOGROS - len(secretos)} LOGROS"] = {"rect": pygame.Rect(config.WIDTH//2 - 150, 470, 300, 40), "fase": 99, "destino": "NONE"}
+                
+        # Botón de configuración siempre presente abajo
+        self.botones["Configuración"] = {"rect": pygame.Rect(10, config.HEIGHT - 50, 180, 40), "fase": 1, "destino": "SETTINGS"}
 
     def manejar_eventos(self, evento):
         if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
             pos_raton = pygame.mouse.get_pos()
             for nombre, info in self.botones.items():
                 if info["rect"].collidepoint(pos_raton):
-                    if self.datos["fase_desbloqueada"] >= info["fase"]:
+                    if self.datos.get("fase_desbloqueada", 1) >= info["fase"]:
                         self.next_state = info["destino"]
                         self.done = True
+                    else:
+                        from utils import audio
+                        audio.reproducir("explosion") # Feedback de botón bloqueado
 
     def actualizar(self, dt): pass
 

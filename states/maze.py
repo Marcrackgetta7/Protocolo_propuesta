@@ -51,6 +51,7 @@ class Maze(BaseState):
         self.hackeando, self.ganado, self.timer_victoria = False, False, 0.0
         self.cortafuegos_rotos = 0
         self.secreto_rect = None
+        self.jugador = Player(100, 100) # Posición por defecto
         
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
         ya_tiene_secreto = "Código Muerto" in self.logros_obtenidos
@@ -64,31 +65,17 @@ class Maze(BaseState):
                 elif char == "F": self.paredes_falsas.append(rect)
                 elif char == "2": self.cortafuegos.append(rect)
                 elif char == "E": self.salida = rect
+                elif char == "S": self.jugador = Player(x + self.tam_celda//2, y + self.tam_celda//2)
+                elif char == "*" and not ya_tiene_secreto: self.secreto_rect = rect
+                
         self.fase_oscura = True
         self.es_partida = True
         
-        # Secretos
-        self.secreto_encontrado = False
-        self.logros_obtenidos = save_manager.cargar().get("secretos", [])
-
-    def startup(self):
-        self.jugador = Player(100, 100)
         self.monstruos = [
             Monster(500, 200),
             Monster(700, 400),
             Monster(200, 400)
         ]
-        
-        self.zonas_hackeo = [
-            pygame.Rect(800, 100, 50, 50),
-            pygame.Rect(400, 400, 50, 50)
-        ]
-        self.hackeos_completados = [False, False]
-        self.tiempo_hackeando = [0.0, 0.0]
-        
-        # El secreto está en una esquina del laberinto (esquina superior derecha, pero un poco oculta)
-        self.zona_secreto = pygame.Rect(850, 50, 30, 30) 
-        self.secreto_encontrado = "fase2_secreto1" in save_manager.cargar().get("secretos", [])
 
         self.compañero.mostrar_mensaje("La visibilidad es nula. Hackea los terminales verdes para encender las luces.", id_voz="v_f2_in")
         audio.reproducir_musica("assets/audio/Fase2_dark.ogg", volumen=0.3)
@@ -100,6 +87,13 @@ class Maze(BaseState):
         self.shake.actualizar(dt)
         self.compañero.actualizar(dt)
         
+        if getattr(self, "game_over", False):
+            self.timer_game_over += dt
+            if self.timer_game_over > 2.0:
+                self.game_over = False
+                self.startup()
+            return
+            
         if self.ganado:
             self.timer_victoria += dt
             if self.timer_victoria > 2.5:
@@ -157,9 +151,11 @@ class Maze(BaseState):
 
         for m in self.monstruos:
             if math.hypot(self.jugador.x - m.x, self.jugador.y - m.y) < (self.jugador.radio_nucleo + m.radio):
-                self.startup() 
-                self.shake.iniciar(15, 0.4)
-                self.compañero.mostrar_mensaje("¡Te atrapó! Interviniendo código... Te devolví al inicio. ¡Corre!")
+                if not getattr(self, "game_over", False):
+                    self.game_over = True
+                    self.timer_game_over = 0.0
+                    self.shake.iniciar(15, 0.4)
+                    self.compañero.mostrar_mensaje("¡Te atrapó! Interviniendo código... Reiniciando sistema.")
                 break
 
         if self.salida.collidepoint(self.jugador.x, self.jugador.y):
@@ -189,4 +185,13 @@ class Maze(BaseState):
         ox, oy = self.shake.obtener_offset()
         superficie.blit(surf_temp, (ox, oy))
         self.mascara.dibujar(superficie, (self.jugador.x, self.jugador.y))
+        
+        if getattr(self, "game_over", False):
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((255, 0, 0, 100))
+            superficie.blit(overlay, (0, 0))
+            fuente = pygame.font.SysFont("consolas", 40, bold=True)
+            txt = fuente.render("SISTEMA COMPROMETIDO", True, (255, 255, 255))
+            superficie.blit(txt, txt.get_rect(center=(config.WIDTH//2, config.HEIGHT//2)))
+            
         self.compañero.dibujar(superficie, self.jugador.y)

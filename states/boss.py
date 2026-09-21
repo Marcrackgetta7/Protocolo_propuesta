@@ -52,9 +52,9 @@ class Boss(BaseState):
         self.logro_pacifista_entregado = False
         
         self.estado = "INTRO"
-        self.boss_x, self.boss_y = config.WIDTH / 2, 100
         self.yo_x, self.yo_y = -100, -100
         self.es_partida = True
+        self.fuente_ui = pygame.font.SysFont("consolas", 16, bold=True)
 
     def startup(self):
         self.jugador = Player(config.WIDTH / 2, config.HEIGHT - 100)
@@ -211,10 +211,9 @@ class Boss(BaseState):
         pygame.draw.circle(surf_temp, (100, 0, 0), (int(self.boss_x), int(self.boss_y)), 50)
         pygame.draw.circle(surf_temp, config.COLOR_DANGER, (int(self.boss_x), int(self.boss_y)), 25)
 
-        fuente_ui = pygame.font.SysFont("consolas", 16, bold=True)
-        surf_temp.blit(fuente_ui.render(f"SALUD: {max(0, int(self.salud_jugador))}%", True, config.COLOR_TEXT), (20, 20))
-        surf_temp.blit(fuente_ui.render(f"ESCUDO: {max(0, int(self.escudo_jugador))}%", True, (0, 200, 255)), (20, 45))
-        surf_temp.blit(fuente_ui.render(f"NÚCLEO: {max(1, int(self.salud_boss))}%", True, config.COLOR_DANGER), (config.WIDTH - 150, 20))
+        surf_temp.blit(self.fuente_ui.render(f"SALUD: {max(0, int(self.salud_jugador))}%", True, config.COLOR_TEXT), (20, 20))
+        surf_temp.blit(self.fuente_ui.render(f"ESCUDO: {max(0, int(self.escudo_jugador))}%", True, (0, 200, 255)), (20, 45))
+        surf_temp.blit(self.fuente_ui.render(f"NÚCLEO: {max(1, int(self.salud_boss))}%", True, config.COLOR_DANGER), (config.WIDTH - 150, 20))
         pygame.draw.rect(surf_temp, (50, 0, 0), (config.WIDTH - 150, 45, 120, 10))
         pygame.draw.rect(surf_temp, config.COLOR_DANGER, (config.WIDTH - 150, 45, 120 * (self.salud_boss/100.0), 10))
 

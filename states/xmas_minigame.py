@@ -37,6 +37,7 @@ class XmasMinigame(BaseState):
         self.ganado = False
         self.timer_victoria = 0.0
         self.es_partida = True
+        self.fuente_ui = pygame.font.SysFont("consolas", 24, bold=True)
 
     def startup(self):
         self.score, self.regalos_perdidos = 0, 0
@@ -108,6 +109,6 @@ class XmasMinigame(BaseState):
         for r in self.regalos: r.dibujar(superficie)
         pygame.draw.rect(superficie, (150, 100, 50), self.jugador_rect) 
         
-        txt = pygame.font.SysFont("consolas", 24, bold=True).render(f"Regalos: {self.score}/10", True, (255, 255, 255))
+        txt = self.fuente_ui.render(f"Regalos: {self.score}/10", True, (255, 255, 255))
         superficie.blit(txt, (20, 20))
         self.compañero.dibujar(superficie, self.jugador_rect.y)

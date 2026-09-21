@@ -19,6 +19,7 @@ from states.boss import Boss
 from states.gallery import Gallery 
 from states.proposal import Proposal
 from states.outro import Outro
+from states.settings import Settings
 from states.interlude import Interlude 
 from states.credits import Credits     
 from utils.scanlines import Scanlines
@@ -99,6 +100,7 @@ def main():
         "INTRO_7": Interlude(textos_in_7, "HACK_BOSS"),   
         "HACK_BOSS": Boss(),
         
+        "SETTINGS": Settings(),
         "CREDITS": Credits(),     
         "GALLERY": Gallery(),                     
         "PROPOSAL": Proposal(),
@@ -106,6 +108,8 @@ def main():
     }
     
     maquina = StateMachine(diccionario_estados, "AUTH")
+    if getattr(maquina.state, "es_partida", False):
+        maquina.mostrando_controles = True
 
     ejecutando = True
     while ejecutando:
@@ -126,6 +130,11 @@ def main():
 
         maquina.dibujar(pantalla)
         filtro_crt.dibujar(pantalla)
+        
+        from utils.toast import ToastManager
+        ToastManager.get().actualizar(dt)
+        ToastManager.get().dibujar(pantalla)
+
         pygame.display.flip()
 
     pygame.quit()

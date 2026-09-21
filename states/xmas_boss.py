@@ -44,10 +44,11 @@ class XmasBoss(BaseState):
         self.boss_x, self.boss_y = config.WIDTH / 2, 100
         self.timer_disparo, self.timer_aoe, self.timer_ayuda, self.timer_bala_jugador = 0.0, 0.0, 0.0, 0.0
         
-        self.se_congelo_alguna_vez = False
         self.ganado = False
         self.timer_victoria = 0.0
         self.es_partida = True
+        self.fuente_ui = pygame.font.SysFont("consolas", 14, bold=True)
+        
     def startup(self):
         self.jugador = Player(config.WIDTH / 2, config.HEIGHT - 150)
         self.vel_original = self.jugador.velocidad 
@@ -168,8 +169,7 @@ class XmasBoss(BaseState):
         pygame.draw.rect(superficie, (50, 255, 50), (config.WIDTH//2 - 100, 20, 200, 15))
         pygame.draw.rect(superficie, (255, 50, 50), (config.WIDTH//2 - 100, 20, max(0, self.salud_boss)*2, 15))
         
-        fuente = pygame.font.SysFont("consolas", 14, bold=True)
-        superficie.blit(fuente.render("FRÍO:", True, (150, 200, 255)), (20, 20))
+        superficie.blit(self.fuente_ui.render("FRÍO:", True, (150, 200, 255)), (20, 20))
         pygame.draw.rect(superficie, (30, 60, 100), (70, 20, 100, 15))
         pygame.draw.rect(superficie, (0, 150, 255), (70, 20, self.congelacion, 15))
         self.compañero.dibujar(superficie, self.jugador.y)
