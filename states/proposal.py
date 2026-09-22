@@ -39,7 +39,9 @@ class Proposal(BaseState):
             pos_raton = pygame.mouse.get_pos()
             
             if self.rect_si.collidepoint(pos_raton):
-                audio.reproducir("anomalia") 
+                audio.reproducir("anomalia")
+                from utils import save_manager
+                save_manager.guardar(answer_key="final", answer_val="SÍ")
                 self.done = True
                 
             elif self.btn_no.clic(pos_raton, clic_izq):

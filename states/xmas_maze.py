@@ -45,6 +45,7 @@ class XmasMaze(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "OUTRO_2"
+        self.es_partida = True
         self.tam_celda = 40
         self.jugador = None
         self.compañero = CompanionUI()

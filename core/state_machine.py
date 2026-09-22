@@ -27,6 +27,12 @@ class StateMachine:
                 self.state.done = False
                 return
             
+            # Guardar el tiempo invertido en la fase si era partida
+            if getattr(self.state, "es_partida", False) and hasattr(self.state, "time_active"):
+                import utils.save_manager as sm
+                sm.guardar(phase_name=self.state_name, phase_time_add=self.state.time_active, total_time_add=self.state.time_active)
+                self.state.time_active = 0.0 # reset for future retries
+            
             self.haciendo_fade_out = True
             self.alpha_fade = 0.0
             self.state.done = False # Evita múltiples activaciones
@@ -84,6 +90,12 @@ class StateMachine:
         # Solo actualizamos el estado si no estamos en pleno fade out oscuro
         if not (self.haciendo_fade_out and self.alpha_fade > 200):
             self.state.actualizar(dt)
+            
+            # Control de tiempo por fase
+            if getattr(self.state, "es_partida", False) and not self.pausado and not getattr(self, "mostrando_controles", False):
+                if not hasattr(self.state, "time_active"):
+                    self.state.time_active = 0.0
+                self.state.time_active += dt
 
     def dibujar(self, superficie):
         self.state.dibujar(superficie)

@@ -20,6 +20,7 @@ from states.gallery import Gallery
 from states.proposal import Proposal
 from states.outro import Outro
 from states.settings import Settings
+from states.stats import Stats
 from states.interlude import Interlude 
 from states.credits import Credits     
 from utils.scanlines import Scanlines
@@ -101,6 +102,7 @@ def main():
         "HACK_BOSS": Boss(),
         
         "SETTINGS": Settings(),
+        "STATS": Stats(),
         "CREDITS": Credits(),     
         "GALLERY": Gallery(),                     
         "PROPOSAL": Proposal(),

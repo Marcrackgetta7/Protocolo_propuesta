@@ -60,6 +60,9 @@ class Auth(BaseState):
                 if evento.key == pygame.K_RETURN:
                     # Verifica la respuesta
                     if self.respuestas[self.paso](self.input_text):
+                        # Guardar respuesta
+                        save_manager.guardar(answer_key=f"q{self.paso + 1}", answer_val=self.input_text)
+                        
                         self.paso += 1
                         audio.reproducir("tecla")
                         if self.paso >= len(self.preguntas):

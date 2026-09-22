@@ -47,8 +47,9 @@ class MainMenu(BaseState):
             else:
                 self.botones[f"FALTAN {self.TOTAL_LOGROS - len(secretos)} LOGROS"] = {"rect": pygame.Rect(config.WIDTH//2 - 150, 470, 300, 40), "fase": 99, "destino": "NONE"}
                 
-        # Botón de configuración siempre presente abajo
+        # Botones inferiores
         self.botones["Configuración"] = {"rect": pygame.Rect(10, config.HEIGHT - 50, 180, 40), "fase": 1, "destino": "SETTINGS"}
+        self.botones["Estadísticas"] = {"rect": pygame.Rect(config.WIDTH - 190, config.HEIGHT - 50, 180, 40), "fase": 1, "destino": "STATS"}
 
     def manejar_eventos(self, evento):
         if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
