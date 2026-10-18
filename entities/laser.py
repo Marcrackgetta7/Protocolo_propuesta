@@ -6,9 +6,9 @@ class Laser:
         self.es_horizontal = es_horizontal
         self.pos = pos
         self.timer = 0.0
-        # ¡MÁS RÁPIDO! Exige mejores reflejos (antes era 1.0)
-        self.tiempo_aviso = 0.6  
-        self.tiempo_activo = 0.3
+        # Velocidad de aviso balanceada para permitir reacción adecuada
+        self.tiempo_aviso = 0.85  
+        self.tiempo_activo = 0.35
         self.terminado = False
         self.estado = "AVISO"
         self.rect = pygame.Rect(0, 0, 0, 0)

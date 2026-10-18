@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import os
 import math
 from states.base_state import BaseState
@@ -15,17 +16,17 @@ class Gallery(BaseState):
         self.cam_x = 0
         # Nivel extendido a 11000 píxeles para acomodar 5 fotos y 7 textos
         self.largo_nivel = 11000 
-        self.fuente_fotos = pygame.font.SysFont("consolas", 20)
-        self.fuente_cartas = pygame.font.SysFont("consolas", 22, italic=True)
+        self.fuente_fotos = get_font(20)
+        self.fuente_cartas = get_font(22, italic=True)
         self.tiempo_portal = 0.0
 
         # SECCIÓN 1: FOTOS (5 Fotos separadas cada 1600 píxeles)
         self.recuerdos = [
-            {"x": 600,  "ruta": "assets/img/foto1.jpg", "texto": "Nuestra primera locura...\n¿Te acuerdas?", "escritor": None},
-            {"x": 2200, "ruta": "assets/img/foto2.jpg", "texto": "Tantas tazas de café para no dormir.", "escritor": None},
-            {"x": 3800, "ruta": "assets/img/foto3.jpg", "texto": "Y aunque a veces soy un enano terco...", "escritor": None},
-            {"x": 5400, "ruta": "assets/img/foto4.jpg", "texto": "Siempre has estado ahí para mí.", "escritor": None},
-            {"x": 7000, "ruta": "assets/img/foto5.jpg", "texto": "Cada momento a tu lado es especial.", "escritor": None}
+            {"x": 600,  "ruta": "assets/img/img1.png", "texto": "Nuestra primera locura...\n¿Te acuerdas?", "escritor": None},
+            {"x": 2200, "ruta": "assets/img/img2.png", "texto": "Tantas tazas de café para no dormir.", "escritor": None},
+            {"x": 3800, "ruta": "assets/img/img3.png", "texto": "Y aunque a veces soy un enano terco...", "escritor": None},
+            {"x": 5400, "ruta": "assets/img/img4.png", "texto": "Siempre has estado ahí para mí.", "escritor": None},
+            {"x": 7000, "ruta": "assets/img/img5.png", "texto": "Cada momento a tu lado es especial.", "escritor": None}
         ]
         
         # SECCIÓN 2: MENSAJES EXTENSOS (Alternan con las fotos y al final hay 3 seguidos)

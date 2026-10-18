@@ -1,23 +1,86 @@
-# Python cache
+# ==========================================
+# Protocolo: Brecha - .gitignore
+# Repositorio limpio y reproducible
+# ==========================================
+
+# --- Python: Caches y Bytecode ---
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
-# Virtual environments
+# --- Entornos Virtuales y Gestores de Paquetes ---
 venv/
 env/
-.env
+ENV/
+env.bak/
+venv.bak/
 .venv/
+.env/
 
-# Environment variables
+# --- Secretos y Variables de Entorno Locales ---
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+credentials.json
+client_secret*.json
 
-# Database / Save data
+# --- Compilaciones y Empaquetado (Pygbag, Web, PyInstaller) ---
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+*.spec
+*.apk
+*.aab
+web.zip
+
+# --- Datos Locales de Partida y Bases de Datos ---
 save_data.json
+save_data*.json
+*.sqlite
 *.sqlite3
 *.db
 
-# OS generated files
+# --- Archivos Temporales, Scratch y Scripts Desechables ---
+scratch/
+temp_*.py
+original_template.tmpl
+fix_main.py
+patch_pygbag.py
+replace_fonts.py
+strip_tecla.py
+*.tmp
+*.temp
+*.bak
+*~
+
+# --- Configuraciones de IDEs y Editores ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# --- Archivos de Sistema Operativo ---
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Logs y Diagnósticos ---
+*.log
+logs/
+crash_dumps/

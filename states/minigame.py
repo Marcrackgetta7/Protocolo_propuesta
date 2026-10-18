@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import random
 import math
 from states.base_state import BaseState
@@ -52,9 +53,9 @@ class Minigame(BaseState):
         es_horizontal = random.choice([True, False])
         pos = random.randint(50, config.HEIGHT - 50) if es_horizontal else random.randint(50, config.WIDTH - 50)
         l = Laser(es_horizontal, pos)
-        factor = self.anomalias_recolectadas * 0.1
-        l.tiempo_aviso = max(0.25, 0.6 - factor)
-        l.tiempo_activo = max(0.15, 0.3 - factor/2)
+        factor = self.anomalias_recolectadas * 0.05
+        l.tiempo_aviso = max(0.60, 0.85 - factor)
+        l.tiempo_activo = max(0.25, 0.35 - factor/2)
         self.lasers.append(l)
         audio.reproducir("laser_fase1", anti_spam_ms=100)
 
@@ -69,6 +70,7 @@ class Minigame(BaseState):
             self.timer_victoria += dt
             if self.timer_victoria > 1.5:
                 save_manager.guardar(fase=6)
+                self.next_state = "OUTRO_5"
                 self.done = True
             return
 
@@ -80,14 +82,12 @@ class Minigame(BaseState):
         if self.jugador.y < 20: self.jugador.y = 20
         if self.jugador.y > config.HEIGHT - 20: self.jugador.y = config.HEIGHT - 20
 
-        intervalo_laser = max(0.2, 0.8 - (self.anomalias_recolectadas * 0.15))
+        intervalo_laser = max(0.55, 1.0 - (self.anomalias_recolectadas * 0.1))
         self.timer_laser += dt
         if self.timer_laser >= intervalo_laser: 
             self.spawn_laser()
-            if self.anomalias_recolectadas >= 2 and random.random() < 0.4: self.spawn_laser() 
-            elif self.anomalias_recolectadas >= 4:
-                self.spawn_laser() 
-                if random.random() < 0.5: self.spawn_laser() 
+            if self.anomalias_recolectadas >= 2 and random.random() < 0.3: self.spawn_laser() 
+            elif self.anomalias_recolectadas >= 4 and random.random() < 0.4: self.spawn_laser() 
             self.timer_laser = 0.0
 
         for laser in self.lasers[:]:
@@ -115,7 +115,6 @@ class Minigame(BaseState):
                         if self.golpes_laser == 0 and "L5" not in self.logros_obtenidos:
                             save_manager.guardar(secreto="L5")
                             self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Fantasma Digital (Cero Láseres)!")
-                            audio.reproducir("tecla")
                         else:
                             self.compañero.mostrar_mensaje("¡Infiltración completada! Extrayendo...")
 
@@ -131,7 +130,7 @@ class Minigame(BaseState):
         self.jugador.dibujar(surf_temp)
         
         # Add UI counter
-        font = pygame.font.SysFont("consolas", 24, bold=True)
+        font = get_font(24, bold=True)
         txt = font.render(f"Anomalías: {self.anomalias_recolectadas}/5", True, config.COLOR_ENERGY)
         surf_temp.blit(txt, (20, 20))
         

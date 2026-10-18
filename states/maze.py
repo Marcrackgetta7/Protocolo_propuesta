@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import math
 from states.base_state import BaseState
 from entities.player import Player
@@ -45,20 +46,44 @@ class Maze(BaseState):
         
         self.cortafuegos_rotos = 0
         self.ganado, self.timer_victoria = False, 0.0
+        self.game_over, self.timer_game_over = False, 0.0
+
+    def cleanup(self):
+        """Elimina correctamente las instancias de enemigos y limpia listas y estados asociados."""
+        for m in self.monstruos:
+            if hasattr(m, "particulas"):
+                m.particulas.clear()
+        self.monstruos.clear()
+        self.paredes.clear()
+        self.paredes_falsas.clear()
+        self.cortafuegos.clear()
+        self.hackeando = False
+        self.cortafuegos_actual = None
+        self.game_over = False
+        self.timer_game_over = 0.0
+        self.ganado = False
+        self.timer_victoria = 0.0
+        self.cortafuegos_rotos = 0
 
     def startup(self):
+        self.cleanup()
         self.paredes, self.paredes_falsas, self.cortafuegos, self.monstruos = [], [], [], []
         self.hackeando, self.ganado, self.timer_victoria = False, False, 0.0
+        self.game_over, self.timer_game_over = False, 0.0
         self.cortafuegos_rotos = 0
+        self.cortafuegos_actual = None
         self.secreto_rect = None
-        self.jugador = Player(100, 100) # Posición por defecto
+        self.offset_x = (config.WIDTH - len(MAPA[0]) * self.tam_celda) // 2
+        self.offset_y = (config.HEIGHT - len(MAPA) * self.tam_celda) // 2
+        self.jugador = Player(self.offset_x + 100, self.offset_y + 100) # Posición por defecto
         
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
         ya_tiene_secreto = "Código Muerto" in self.logros_obtenidos
         for fila in range(len(MAPA)):
             for col in range(len(MAPA[fila])):
                 char = MAPA[fila][col]
-                x, y = col * self.tam_celda, fila * self.tam_celda
+                x = self.offset_x + col * self.tam_celda
+                y = self.offset_y + fila * self.tam_celda
                 rect = pygame.Rect(x, y, self.tam_celda, self.tam_celda)
                 
                 if char == "1": self.paredes.append(rect)
@@ -72,9 +97,9 @@ class Maze(BaseState):
         self.es_partida = True
         
         self.monstruos = [
-            Monster(500, 200),
-            Monster(700, 400),
-            Monster(200, 400)
+            Monster(self.offset_x + 500, self.offset_y + 200),
+            Monster(self.offset_x + 700, self.offset_y + 400),
+            Monster(self.offset_x + 200, self.offset_y + 400)
         ]
 
         self.compañero.mostrar_mensaje("La visibilidad es nula. Hackea los terminales verdes para encender las luces.", id_voz="v_f2_in")
@@ -97,7 +122,8 @@ class Maze(BaseState):
         if self.ganado:
             self.timer_victoria += dt
             if self.timer_victoria > 1.5:
-                save_manager.guardar(fase=7) 
+                save_manager.guardar(fase=7)
+                self.next_state = "OUTRO_6" 
                 self.done = True
             return
 
@@ -124,7 +150,6 @@ class Maze(BaseState):
         if self.secreto_rect and rect_jugador.colliderect(self.secreto_rect):
             save_manager.guardar(secreto="Código Muerto")
             self.secreto_rect = None
-            audio.reproducir("tecla")
             self.compañero.mostrar_mensaje("¡SECRETO ENCONTRADO: Código Muerto!")
 
         if not self.hackeando:
@@ -147,7 +172,7 @@ class Maze(BaseState):
                     self.hackeando = False
                     self.cortafuegos_rotos += 1
                     self.compañero.mostrar_mensaje(f"¡Roto! ({self.cortafuegos_rotos}/3) Alerta: Limpiador desplegado.")
-                    self.monstruos.append(Monster(config.WIDTH - 100, config.HEIGHT - 100))
+                    self.monstruos.append(Monster(self.offset_x + 880, self.offset_y + 440))
 
         for m in self.monstruos:
             if math.hypot(self.jugador.x - m.x, self.jugador.y - m.y) < (self.jugador.radio_nucleo + m.radio):
@@ -159,13 +184,18 @@ class Maze(BaseState):
                 break
 
         if self.salida.collidepoint(self.jugador.x, self.jugador.y):
-            self.ganado = True
-            if self.cortafuegos_rotos >= 3 and "L6" not in self.logros_obtenidos:
-                save_manager.guardar(secreto="L6")
-                self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Fuerza Bruta!")
-                audio.reproducir("tecla")
-            else:
-                self.compañero.mostrar_mensaje("¡Laberinto superado! Volviendo al menú...")
+            if not self.ganado:
+                self.ganado = True
+                self.timer_victoria = 0.0
+                for m in self.monstruos:
+                    if hasattr(m, "particulas"):
+                        m.particulas.clear()
+                self.monstruos.clear()
+                if self.cortafuegos_rotos >= 3 and "L6" not in self.logros_obtenidos:
+                    save_manager.guardar(secreto="L6")
+                    self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Fuerza Bruta!")
+                else:
+                    self.compañero.mostrar_mensaje("¡Laberinto superado! Volviendo al menú...")
 
     def dibujar(self, superficie):
         surf_temp = pygame.Surface((config.WIDTH, config.HEIGHT))
@@ -190,7 +220,7 @@ class Maze(BaseState):
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
             overlay.fill((255, 0, 0, 100))
             superficie.blit(overlay, (0, 0))
-            fuente = pygame.font.SysFont("consolas", 40, bold=True)
+            fuente = get_font(40, bold=True)
             txt = fuente.render("SISTEMA COMPROMETIDO", True, (255, 255, 255))
             superficie.blit(txt, txt.get_rect(center=(config.WIDTH//2, config.HEIGHT//2)))
             

@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 
 class BaseState:
     """Clase base de la que heredarán todas las fases del juego."""
@@ -7,7 +8,7 @@ class BaseState:
         self.quit = False         # Cambia a True si el jugador cierra el juego
         self.next_state = None    # Nombre de la siguiente fase a cargar
         # Fuente tipo consola básica para empezar (la cambiaremos en la Fase 4)
-        self.font = pygame.font.SysFont("consolas", 24) 
+        self.font = get_font(24) 
 
     def startup(self):
         """Se ejecuta al entrar a este estado."""

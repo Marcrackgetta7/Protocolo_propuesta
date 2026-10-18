@@ -1,18 +1,19 @@
 import pygame
+from utils.fonts import get_font
 import config
 from entities.ui_button import UIButton
 
 class PauseMenu:
     def __init__(self, maquina):
         self.maquina = maquina
-        self.fuente_titulo = pygame.font.SysFont("consolas", 40, bold=True)
+        self.fuente_titulo = get_font(40, bold=True)
         
-        cx = config.WIDTH // 2 - 100
-        cy = config.HEIGHT // 2 - 50
+        cx = config.WIDTH // 2 - 120
+        cy = config.HEIGHT // 2 - 55
         
-        self.btn_continuar = UIButton(cx, cy, 200, 40, "Continuar")
-        self.btn_reintentar = UIButton(cx, cy + 60, 200, 40, "Reintentar")
-        self.btn_salir = UIButton(cx, cy + 120, 200, 40, "Salir")
+        self.btn_continuar = UIButton(cx, cy, 240, 44, "Continuar")
+        self.btn_reintentar = UIButton(cx, cy + 58, 240, 44, "Reintentar")
+        self.btn_salir = UIButton(cx, cy + 116, 240, 44, "Salir")
 
     def manejar_eventos(self, evento):
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE:
@@ -26,9 +27,13 @@ class PauseMenu:
             self.maquina.pausado = False
         elif self.btn_reintentar.clic(pos_raton, clic_izq):
             self.maquina.pausado = False
+            if hasattr(self.maquina.state, "cleanup"):
+                self.maquina.state.cleanup()
             self.maquina.state.startup()
         elif self.btn_salir.clic(pos_raton, clic_izq):
             self.maquina.pausado = False
+            if hasattr(self.maquina.state, "cleanup"):
+                self.maquina.state.cleanup()
             self.maquina.state.next_state = "MAIN_MENU"
             self.maquina.state.done = True
 

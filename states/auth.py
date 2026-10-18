@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 from states.base_state import BaseState
 from utils.text_renderer import TypewriterText
 from utils import audio
@@ -9,9 +10,9 @@ class Auth(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "MAIN_MENU"
-        self.fuente_titulo = pygame.font.SysFont("consolas", 22, bold=True)
-        self.fuente_input = pygame.font.SysFont("consolas", 24, bold=True)
-        self.fuente_ui = pygame.font.SysFont("consolas", 14)
+        self.fuente_titulo = get_font(22, bold=True)
+        self.fuente_input = get_font(24, bold=True)
+        self.fuente_ui = get_font(14)
         
         self.preguntas = [
             "PREGUNTA 1/3:\n¿Con qué apodo me sueles llamar?",
@@ -52,7 +53,7 @@ class Auth(BaseState):
         self.mensaje_error = ""
         self.estado_fase = "ESCRIBIENDO"
         texto = f"> PROTOCOLO DE SEGURIDAD ACTIVADO.\n> IDENTIDAD REQUERIDA PARA ACCEDER A LOS ARCHIVOS DE MARCELO.\n\n{self.preguntas[self.paso]}"
-        self.escritor = TypewriterText(self.fuente_titulo, texto, (50, 100), speed=0.03)
+        self.escritor = TypewriterText(self.fuente_titulo, texto, (50, 70), speed=0.03, max_width=config.WIDTH - 100)
         
     def manejar_eventos(self, evento):
         if self.estado_fase == "ESPERANDO_INPUT":

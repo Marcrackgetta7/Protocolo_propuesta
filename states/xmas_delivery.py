@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import random
 import math
 from states.base_state import BaseState
@@ -35,7 +36,7 @@ class XmasDelivery(BaseState):
         self.ganado = False
         self.es_partida = True
         self.timer_victoria = 0.0
-        self.fuente_ui = pygame.font.SysFont("consolas", 24, bold=True)
+        self.fuente_ui = get_font(24, bold=True)
 
     def startup(self):
         self.jugador = Player(100, config.HEIGHT // 2)
@@ -81,7 +82,8 @@ class XmasDelivery(BaseState):
         if self.ganado:
             self.timer_victoria += dt
             if self.timer_victoria > 1.5:
-                save_manager.guardar(fase=4) 
+                save_manager.guardar(fase=4)
+                self.next_state = "OUTRO_3" 
                 self.done = True
             return
 
@@ -115,7 +117,6 @@ class XmasDelivery(BaseState):
                     if self.tiempo >= 5.0 and "L3" not in self.logros_obtenidos:
                         save_manager.guardar(secreto="L3")
                         self.compañero.mostrar_mensaje(f"¡LOGRO DESBLOQUEADO: Santa Veloz! (+{self.tiempo:.1f}s sobrantes)")
-                        audio.reproducir("tecla")
                     else:
                         self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
 
@@ -131,7 +132,7 @@ class XmasDelivery(BaseState):
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
             overlay.fill((255, 50, 50, 100))
             superficie.blit(overlay, (0, 0))
-            fuente = pygame.font.SysFont("consolas", 40, bold=True)
+            fuente = get_font(40, bold=True)
             txt_over = fuente.render("TIEMPO AGOTADO", True, (255, 255, 255))
             superficie.blit(txt_over, txt_over.get_rect(center=(config.WIDTH//2, config.HEIGHT//2)))
             

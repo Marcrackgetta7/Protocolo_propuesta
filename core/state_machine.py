@@ -1,5 +1,6 @@
 from utils.pause_menu import PauseMenu
 import pygame
+from utils.fonts import get_font
 
 class StateMachine:
     """Gestor que controla qué fase del juego está activa."""
@@ -108,8 +109,8 @@ class StateMachine:
             overlay.fill((0, 0, 0, 180))
             superficie.blit(overlay, (0, 0))
             
-            fuente_tit = pygame.font.SysFont("consolas", 36, bold=True)
-            fuente_txt = pygame.font.SysFont("consolas", 24)
+            fuente_tit = get_font(36, bold=True)
+            fuente_txt = get_font(24)
             
             tit = fuente_tit.render("CONTROLES DE LA FASE", True, config.COLOR_ENERGY)
             superficie.blit(tit, tit.get_rect(center=(config.WIDTH//2, 150)))

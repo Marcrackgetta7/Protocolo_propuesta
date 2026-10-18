@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 from states.base_state import BaseState
 from utils.text_renderer import TypewriterText
 from utils import audio
@@ -9,11 +10,11 @@ class Proposal(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "OUTRO"
-        self.fuente_grande = pygame.font.SysFont("consolas", 28, bold=True)
-        self.fuente_normal = pygame.font.SysFont("consolas", 24)
+        self.fuente_grande = get_font(28, bold=True)
+        self.fuente_normal = get_font(24)
         
-        self.rect_si = pygame.Rect(config.WIDTH//2 - 200, 450, 150, 50)
-        self.btn_no = UIButton(config.WIDTH//2 + 50, 450, 150, 50, "[ NO ]", evasivo=True)
+        self.rect_si = pygame.Rect(config.WIDTH//2 - 180, 390, 150, 48)
+        self.btn_no = UIButton(config.WIDTH//2 + 30, 390, 150, 48, "[ NO ]", evasivo=True)
         
         self.escritor = None
         self.mostrar_botones = False
@@ -27,7 +28,7 @@ class Proposal(BaseState):
         # --- AQUÍ ESTÁ LA GRAN PREGUNTA ---
         texto_final = "SISTEMA RESTAURADO.\n\nTodo este protocolo fue creado para este momento.\nTengo una última pregunta para ti...\n\n¿Quieres ser mi novia?"
         
-        self.escritor = TypewriterText(self.fuente_grande, texto_final, (config.WIDTH//2 - 380, 150), speed=0.08)
+        self.escritor = TypewriterText(self.fuente_grande, texto_final, (config.WIDTH//2 - 360, 90), speed=0.08, max_width=720)
         self.mostrar_botones = False
         self.error_no = False
         self.timer = 0.0
@@ -85,6 +86,6 @@ class Proposal(BaseState):
             
             if self.error_no:
                 txt_err = self.fuente_normal.render("Acción denegada por el administrador.", True, config.COLOR_DANGER)
-                superficie.blit(txt_err, txt_err.get_rect(center=(config.WIDTH//2, 550)))
+                superficie.blit(txt_err, txt_err.get_rect(center=(config.WIDTH//2, 470)))
             else:
                 self.btn_no.dibujar(superficie, pos_raton)

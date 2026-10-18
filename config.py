@@ -2,7 +2,7 @@
 # Configuraciones globales del juego basadas en el GDD
 
 # Pantalla y Rendimiento
-WIDTH = 960
+WIDTH = 1280
 HEIGHT = 540
 FPS = 60
 

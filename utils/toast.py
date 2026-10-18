@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import config
 from utils import audio
 
@@ -21,8 +22,8 @@ class ToastManager:
             return
             
         if self.fuente_tit is None:
-            self.fuente_tit = pygame.font.SysFont("consolas", 20, bold=True)
-            self.fuente_txt = pygame.font.SysFont("consolas", 16)
+            self.fuente_tit = get_font(20, bold=True)
+            self.fuente_txt = get_font(16)
             
         self.toasts.append({
             "titulo": titulo,

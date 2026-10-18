@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import math
 import random
 from states.base_state import BaseState
@@ -55,7 +56,7 @@ class Boss(BaseState):
         self.estado = "INTRO"
         self.yo_x, self.yo_y = -100, -100
         self.es_partida = True
-        self.fuente_ui = pygame.font.SysFont("consolas", 16, bold=True)
+        self.fuente_ui = get_font(16, bold=True)
         self.boss_x, self.boss_y = config.WIDTH / 2, 100
 
     def startup(self):
@@ -117,7 +118,6 @@ class Boss(BaseState):
                 save_manager.guardar(secreto="Pacifista")
                 self.logro_pacifista_entregado = True
                 self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Pacifista (15s sin disparar)!")
-                audio.reproducir("tecla")
 
             self.timer_disparo += dt
             self.timer_radial += dt

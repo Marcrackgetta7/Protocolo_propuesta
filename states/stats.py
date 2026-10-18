@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 from states.base_state import BaseState
 from utils import save_manager
 import config
@@ -7,9 +8,9 @@ class Stats(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "MAIN_MENU"
-        self.fuente_titulo = pygame.font.SysFont("consolas", 30, bold=True)
-        self.fuente_normal = pygame.font.SysFont("consolas", 20)
-        self.fuente_fases = pygame.font.SysFont("consolas", 18)
+        self.fuente_titulo = get_font(30, bold=True)
+        self.fuente_normal = get_font(20)
+        self.fuente_fases = get_font(18)
         self.datos = save_manager.cargar()
         self.scroll_y = 0
 
@@ -48,7 +49,7 @@ class Stats(BaseState):
         secretos_obtenidos = self.datos.get("secretos", [])
         
         # Bloque de Estadisticas Globales
-        rect_global = pygame.Rect(config.WIDTH//2 - 380, y_base, 760, 100)
+        rect_global = pygame.Rect(config.WIDTH//2 - 440, y_base, 880, 100)
         pygame.draw.rect(superficie, (20, 30, 40), rect_global)
         pygame.draw.rect(superficie, config.COLOR_ENERGY, rect_global, 2)
         
@@ -77,7 +78,7 @@ class Stats(BaseState):
         
         for fase_clave in fases_ordenadas:
             if fase_clave in phases:
-                rect_item = pygame.Rect(config.WIDTH//2 - 380, y_base, 760, 40)
+                rect_item = pygame.Rect(config.WIDTH//2 - 440, y_base, 880, 40)
                 pygame.draw.rect(superficie, (20, 20, 20), rect_item)
                 pygame.draw.rect(superficie, (80, 80, 80), rect_item, 1)
                 

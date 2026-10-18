@@ -13,12 +13,14 @@ class Interlude(BaseState):
         self.escritor = None
 
     def startup(self):
+        audio.detener_musica()
         self.indice_mensaje = 0
         self.mostrar_mensaje_actual()
 
     def mostrar_mensaje_actual(self):
         texto = self.mensajes[self.indice_mensaje]
-        self.escritor = TypewriterText(self.font, texto, (50, config.HEIGHT // 2), speed=0.04)
+        max_ancho = config.WIDTH - 120
+        self.escritor = TypewriterText(self.font, texto, (60, config.HEIGHT // 2 - 30), speed=0.04, max_width=max_ancho)
 
     def manejar_eventos(self, evento):
         if (evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE) or evento.type == pygame.MOUSEBUTTONDOWN:

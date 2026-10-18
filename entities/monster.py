@@ -9,7 +9,7 @@ class Monster:
         self.x = float(x)
         self.y = float(y)
         self.radio = 15
-        self.velocidad = 100.0 # Más lento que el jugador para que pueda escapar
+        self.velocidad = 70.0 # Moderadamente reducida para permitir maniobrar y hackear terminales
         self.particulas = []
         
     def actualizar(self, dt, jugador_x, jugador_y):

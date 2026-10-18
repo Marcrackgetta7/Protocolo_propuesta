@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 from states.base_state import BaseState
 from utils import save_manager
 import config
@@ -19,9 +20,9 @@ class Achievements(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "MAIN_MENU"
-        self.fuente_titulo = pygame.font.SysFont("consolas", 30, bold=True)
-        self.fuente_nombre = pygame.font.SysFont("consolas", 18, bold=True)
-        self.fuente_desc = pygame.font.SysFont("consolas", 14)
+        self.fuente_titulo = get_font(30, bold=True)
+        self.fuente_nombre = get_font(18, bold=True)
+        self.fuente_desc = get_font(14)
         self.datos = save_manager.cargar()
         self.scroll_y = 0
 
@@ -41,7 +42,7 @@ class Achievements(BaseState):
         if teclas[pygame.K_DOWN]: self.scroll_y -= 300 * dt
         
         if self.scroll_y > 0: self.scroll_y = 0
-        min_scroll = -max(0, (len(LOGROS_DATA) * 65) - (config.HEIGHT - 200))
+        min_scroll = -max(0, (len(LOGROS_DATA) * 65) - (config.HEIGHT - 135))
         if self.scroll_y < min_scroll: self.scroll_y = min_scroll
 
     def dibujar(self, superficie):
@@ -52,7 +53,7 @@ class Achievements(BaseState):
 
         for item in LOGROS_DATA:
             desbloqueado = item["id"] in secretos_obtenidos
-            rect_item = pygame.Rect(config.WIDTH//2 - 380, y_base, 760, 55)
+            rect_item = pygame.Rect(config.WIDTH//2 - 440, y_base, 880, 55)
             
             if desbloqueado:
                 color_fondo = (20, 60, 20) if item["tipo"] == "LOGRO" else (60, 60, 20)

@@ -27,20 +27,40 @@ from utils.scanlines import Scanlines
 from utils import audio
 from utils import save_manager 
 
-def main():
-    pygame.mixer.pre_init(44100, -16, 2, 128) 
+import asyncio
+
+import sys
+def _es_web():
+    return sys.platform == "emscripten"
+
+async def main():
+    if _es_web():
+        import platform
+        try:
+            platform.document.body.style.background = "#000000"
+            canvas = platform.document.getElementById("canvas")
+            if canvas:
+                canvas.style.backgroundColor = "#000000"
+                canvas.style.aspectRatio = "1280 / 540"
+                canvas.style.objectFit = "contain"
+                canvas.style.margin = "auto"
+                canvas.style.display = "block"
+        except Exception:
+            pass
+
+    pygame.mixer.pre_init(44100, -16, 2, 4096) 
     pygame.init()
     audio.inicializar()
     
-    audio.cargar_sonido("tecla", "assets/audio/tecla.wav", volumen=0.2) 
-    audio.cargar_sonido("anomalia", "assets/audio/anomalia.wav", volumen=0.6)
-    audio.cargar_sonido("disparo_jugador", "assets/audio/disparos.wav", volumen=0.3)
-    audio.cargar_sonido("disparo_boss", "assets/audio/disparos_boss.wav", volumen=0.4)
-    audio.cargar_sonido("boss_area", "assets/audio/Boss_ataque_area.wav", volumen=0.5)
-    audio.cargar_sonido("explosion", "assets/audio/explosion.wav", volumen=0.7)
-    audio.cargar_sonido("glitch", "assets/audio/glitch.wav", volumen=0.8)
-    audio.cargar_sonido("laser_final", "assets/audio/Laser_boss_final.wav", volumen=0.8)
-    audio.cargar_sonido("laser_fase1", "assets/audio/Laser_fase1.wav", volumen=0.5)
+    audio.cargar_sonido("tecla", "assets/audio/tecla.ogg", volumen=0.2) 
+    audio.cargar_sonido("anomalia", "assets/audio/anomalia.ogg", volumen=0.6)
+    audio.cargar_sonido("disparo_jugador", "assets/audio/disparos.ogg", volumen=0.3)
+    audio.cargar_sonido("disparo_boss", "assets/audio/disparos_boss.ogg", volumen=0.4)
+    audio.cargar_sonido("boss_area", "assets/audio/Boss_ataque_area.ogg", volumen=0.5)
+    audio.cargar_sonido("explosion", "assets/audio/explosion.ogg", volumen=0.7)
+    audio.cargar_sonido("glitch", "assets/audio/glitch.ogg", volumen=0.8)
+    audio.cargar_sonido("laser_final", "assets/audio/Laser_boss_final.ogg", volumen=0.8)
+    audio.cargar_sonido("laser_fase1", "assets/audio/Laser_fase1.ogg", volumen=0.5)
     
     flags = pygame.SCALED | pygame.RESIZABLE
     pantalla = pygame.display.set_mode((config.WIDTH, config.HEIGHT), flags)
@@ -48,7 +68,7 @@ def main():
     reloj = pygame.time.Clock()
     filtro_crt = Scanlines()
 
-    # --- DIÁLOGOS DE LAS CINEMÁTICAS ---
+    # --- DIALOGOS DE LAS CINEMATICAS ---
     textos_in_1 = ["¡Bienvenida a este Cuento de Navidad!", "Los regalos se han caído del trineo en pleno vuelo.", "¡Ayúdame a atraparlos antes de que se rompan!"]
     textos_out_1 = ["¡Uf! Salvamos los regalos a tiempo.", "Pero hemos aterrizado en medio de la nada...", "Debemos encontrar el camino en el Bosque Nevado."]
 
@@ -67,7 +87,6 @@ def main():
     textos_out_6 = ["> CORTAFUEGOS DERRIBADOS.", "> Acceso al Núcleo principal concedido.", "> Prepárate... esto no será nada fácil."]
 
     textos_in_7 = ["> ADVERTENCIA: NÚCLEO INESTABLE.", "> Su escudo es impenetrable a largo plazo.", "> Mantente con vida y esquiva el barrido láser."]
-
     diccionario_estados = {
         "AUTH": Auth(),
         "MAIN_MENU": MainMenu(),
@@ -89,7 +108,7 @@ def main():
         
         "INTRO_4": Interlude(textos_in_4, "XMAS_BOSS"),   
         "XMAS_BOSS": XmasBoss(), 
-        "OUTRO_4": Interlude(textos_out_4, "MAIN_MENU"),
+        "OUTRO_4": Interlude(textos_out_4, "INTRO"),
         
         "MINIGAME": Minigame(), 
         "OUTRO_5": Interlude(textos_out_5, "INTRO_6"),
@@ -138,9 +157,10 @@ def main():
         ToastManager.get().dibujar(pantalla)
 
         pygame.display.flip()
+        await asyncio.sleep(0) # Obligatorio para WebAssembly/Pygbag
 
     pygame.quit()
     sys.exit()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import os
 from states.base_state import BaseState
 from entities.ui_button import UIButton
@@ -9,19 +10,19 @@ class Settings(BaseState):
     def __init__(self):
         super().__init__()
         self.next_state = "MAIN_MENU"
-        self.fuente_titulo = pygame.font.SysFont("consolas", 40, bold=True)
-        self.fuente_texto = pygame.font.SysFont("consolas", 20)
+        self.fuente_titulo = get_font(40, bold=True)
+        self.fuente_texto = get_font(20)
         self.datos = save_manager.cargar()
         self.config_audio = self.datos.get("config", {"musica": 1.0, "sfx": 1.0})
         
         cx = config.WIDTH // 2
-        self.btn_volver = UIButton(cx - 100, config.HEIGHT - 80, 200, 40, "Volver al Menú")
-        self.btn_reset = UIButton(cx - 150, 400, 300, 40, "RESETEAR PROGRESO")
+        self.btn_volver = UIButton(cx - 110, config.HEIGHT - 65, 220, 42, "Volver al Menú")
+        self.btn_reset = UIButton(cx - 160, 345, 320, 42, "RESETEAR PROGRESO")
         self.btn_reset.color_normal = (60, 20, 20)
         self.btn_reset.color_hover = config.COLOR_DANGER
         
-        self.rect_musica = pygame.Rect(cx - 150, 200, 300, 20)
-        self.rect_sfx = pygame.Rect(cx - 150, 300, 300, 20)
+        self.rect_musica = pygame.Rect(cx - 160, 160, 320, 20)
+        self.rect_sfx = pygame.Rect(cx - 160, 250, 320, 20)
         self.arrastrando_musica = False
         self.arrastrando_sfx = False
         self.confirmar_reset = False
@@ -47,11 +48,11 @@ class Settings(BaseState):
                     audio.reproducir("explosion")
                     if os.path.exists(save_manager.ARCHIVO):
                         import shutil
-                        shutil.copy(save_manager.ARCHIVO, save_manager.ARCHIVO + ".bak")
-                    datos_limpios = {"fase_desbloqueada": 1, "secretos": [], "autenticado": True, "config": self.config_audio}
-                    import json
-                    with open(save_manager.ARCHIVO, "w") as f:
-                        json.dump(datos_limpios, f)
+                        try:
+                            shutil.copy(save_manager.ARCHIVO, save_manager.ARCHIVO + ".bak")
+                        except Exception:
+                            pass
+                    save_manager.reiniciar_partida(mantener_config=True)
                     self.done = True
             
             if self.rect_musica.collidepoint(pos_raton):
@@ -83,7 +84,7 @@ class Settings(BaseState):
         superficie.fill(config.COLOR_BG)
         
         tit = self.fuente_titulo.render("CONFIGURACIÓN DEL SISTEMA", True, config.COLOR_TEXT)
-        superficie.blit(tit, tit.get_rect(center=(config.WIDTH//2, 80)))
+        superficie.blit(tit, tit.get_rect(center=(config.WIDTH//2, 55)))
         
         superficie.blit(self.fuente_texto.render(f"Volumen Música: {int(self.config_audio['musica']*100)}%", True, config.COLOR_TEXT), (self.rect_musica.x, self.rect_musica.y - 30))
         pygame.draw.rect(superficie, (50, 50, 50), self.rect_musica)

@@ -25,7 +25,7 @@ class Dialogue(BaseState):
 
     def mostrar_mensaje_actual(self):
         texto = self.mensajes[self.indice_mensaje]
-        self.escritor = TypewriterText(self.font, texto, (50, config.HEIGHT // 2), speed=0.04)
+        self.escritor = TypewriterText(self.font, texto, (50, config.HEIGHT // 2), speed=0.04, max_width=config.WIDTH - 100)
 
     def manejar_eventos(self, evento):
         if (evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE) or evento.type == pygame.MOUSEBUTTONDOWN:

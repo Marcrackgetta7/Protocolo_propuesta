@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import math
 import random
 from states.base_state import BaseState
@@ -47,7 +48,7 @@ class XmasBoss(BaseState):
         self.ganado = False
         self.timer_victoria = 0.0
         self.es_partida = True
-        self.fuente_ui = pygame.font.SysFont("consolas", 14, bold=True)
+        self.fuente_ui = get_font(14, bold=True)
         
     def startup(self):
         self.jugador = Player(config.WIDTH / 2, config.HEIGHT - 150)
@@ -69,7 +70,8 @@ class XmasBoss(BaseState):
         if self.ganado:
             self.timer_victoria += dt
             if self.timer_victoria > 1.5:
-                save_manager.guardar(fase=5) 
+                save_manager.guardar(fase=5)
+                self.next_state = "OUTRO_4" 
                 self.done = True
             return
 
@@ -150,7 +152,6 @@ class XmasBoss(BaseState):
             if not self.se_congelo_alguna_vez and "L4" not in self.logros_obtenidos:
                 save_manager.guardar(secreto="L4")
                 self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Sangre Caliente (Cero congelaciones)!")
-                audio.reproducir("tecla")
             else:
                 self.compañero.mostrar_mensaje("¡Muñeco de nieve destruido! Avanzando...")
 

@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 from states.base_state import BaseState
 from utils.vfx import ScreenShake
 from utils import audio 
@@ -10,7 +11,7 @@ class Credits(BaseState):
         super().__init__()
         self.next_state = "MAIN_MENU" 
         self.shake = ScreenShake()
-        self.fuente = pygame.font.SysFont("consolas", 22)
+        self.fuente = get_font(22)
         
         self.textos = [
             "SISTEMA APAGADO CON ÉXITO.",

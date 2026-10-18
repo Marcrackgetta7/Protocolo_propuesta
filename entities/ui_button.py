@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import random
 import math
 import config
@@ -8,7 +9,7 @@ class UIButton:
         self.rect = pygame.Rect(x, y, ancho, alto)
         self.texto = texto
         self.evasivo = evasivo
-        self.fuente = pygame.font.SysFont("consolas", 24)
+        self.fuente = get_font(24)
         self.color_normal = (40, 40, 40)
         self.color_hover = config.COLOR_ENERGY # Se ilumina en rosa al pasar el ratón
         self.intentos_evasion = 0

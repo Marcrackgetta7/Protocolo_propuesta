@@ -1,4 +1,5 @@
 import pygame
+from utils.fonts import get_font
 import math
 from states.base_state import BaseState
 from entities.player import Player
@@ -61,9 +62,18 @@ class XmasMaze(BaseState):
         self.tiempo_restante = 60.0
         self.ganado = False
         self.timer_victoria = 0.0
-        self.fuente_ui = pygame.font.SysFont("consolas", 24, bold=True)
+        self.fuente_ui = get_font(24, bold=True)
+
+    def cleanup(self):
+        self.snowmen.clear()
+        self.esferas.clear()
+        self.paredes.clear()
+        self.paredes_falsas.clear()
+        self.ganado = False
+        self.timer_victoria = 0.0
 
     def startup(self):
+        self.cleanup()
         self.paredes, self.paredes_falsas, self.esferas, self.snowmen = [], [], [], []
         self.esferas_recogidas, self.tiempo_jugado = 0, 0.0
         self.tiempo_restante = 60.0
@@ -73,10 +83,13 @@ class XmasMaze(BaseState):
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
         ya_tiene_secreto = "Estrella Helada" in self.logros_obtenidos
 
+        self.offset_x = (config.WIDTH - len(MAPA[0]) * self.tam_celda) // 2
+        self.offset_y = (config.HEIGHT - len(MAPA) * self.tam_celda) // 2
         for fila in range(len(MAPA)):
             for col in range(len(MAPA[fila])):
                 char = MAPA[fila][col]
-                x, y = col * self.tam_celda, fila * self.tam_celda
+                x = self.offset_x + col * self.tam_celda
+                y = self.offset_y + fila * self.tam_celda
                 rect = pygame.Rect(x, y, self.tam_celda, self.tam_celda)
                 if char == "1": self.paredes.append(rect)
                 elif char == "F": self.paredes_falsas.append(rect)
@@ -86,8 +99,8 @@ class XmasMaze(BaseState):
                 elif char == "E": self.salida = rect
                 
         self.snowmen = [
-            Snowman(800, 200),
-            Snowman(300, 400)
+            Snowman(self.offset_x + 800, self.offset_y + 200),
+            Snowman(self.offset_x + 300, self.offset_y + 400)
         ]
                 
         self.compañero.mostrar_mensaje("Bosque Nevado. Encuentra las 4 esferas para abrir el camino.")
@@ -110,7 +123,8 @@ class XmasMaze(BaseState):
         if self.ganado:
             self.timer_victoria += dt
             if self.timer_victoria > 1.5:
-                save_manager.guardar(fase=3) 
+                save_manager.guardar(fase=3)
+                self.next_state = "OUTRO_2" 
                 self.done = True
             return
 
@@ -156,7 +170,6 @@ class XmasMaze(BaseState):
         if self.secreto_rect and rect_jugador.colliderect(self.secreto_rect):
             save_manager.guardar(secreto="Estrella Helada") 
             self.secreto_rect = None
-            audio.reproducir("tecla")
             self.compañero.mostrar_mensaje("¡SECRETO DESCUBIERTO: Estrella Helada!")
             
         for sm in self.snowmen:
@@ -170,13 +183,15 @@ class XmasMaze(BaseState):
                     self.compañero.mostrar_mensaje("¡Te atrapó un muñeco de nieve!")
 
         if self.esferas_recogidas >= 4 and rect_jugador.colliderect(self.salida):
-            self.ganado = True
-            if self.tiempo_jugado < 15.0 and "L2" not in self.logros_obtenidos:
-                save_manager.guardar(secreto="L2")
-                self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Velocista Nevado (<15s)!")
-                audio.reproducir("tecla")
-            else:
-                self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
+            if not self.ganado:
+                self.ganado = True
+                self.timer_victoria = 0.0
+                self.snowmen.clear()
+                if self.tiempo_jugado < 15.0 and "L2" not in self.logros_obtenidos:
+                    save_manager.guardar(secreto="L2")
+                    self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Velocista Nevado (<15s)!")
+                else:
+                    self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
 
     def dibujar(self, superficie):
         surf_temp = pygame.Surface((config.WIDTH, config.HEIGHT))
@@ -207,7 +222,7 @@ class XmasMaze(BaseState):
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
             overlay.fill((255, 50, 50, 100))
             superficie.blit(overlay, (0, 0))
-            fuente = pygame.font.SysFont("consolas", 40, bold=True)
+            fuente = get_font(40, bold=True)
             txt_over = fuente.render("CONGELADO", True, (255, 255, 255))
             superficie.blit(txt_over, txt_over.get_rect(center=(config.WIDTH//2, config.HEIGHT//2)))
             
