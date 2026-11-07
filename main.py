@@ -29,27 +29,25 @@ from utils import save_manager
 
 import asyncio
 
-import sys
-def _es_web():
-    return sys.platform == "emscripten"
-
 async def main():
-    if _es_web():
+    pygame.mixer.pre_init(44100, -16, 2, 4096) 
+    pygame.init()
+    pantalla = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
+    pygame.display.set_caption("Protocolo: Brecha")
+
+    if sys.platform == "emscripten":
         import platform
         try:
-            platform.document.body.style.background = "#000000"
-            canvas = platform.document.getElementById("canvas")
-            if canvas:
-                canvas.style.backgroundColor = "#000000"
-                canvas.style.aspectRatio = "1280 / 540"
-                canvas.style.objectFit = "contain"
-                canvas.style.margin = "auto"
-                canvas.style.display = "block"
+            platform.window.canvas.width = config.WIDTH
+            platform.window.canvas.height = config.HEIGHT
+            platform.window.config.fb_width = str(config.WIDTH)
+            platform.window.config.fb_height = str(config.HEIGHT)
+            platform.window.config.fb_ar = config.WIDTH / config.HEIGHT
+            platform.window.config.gui_divider = 1
+            platform.window.window_resize()
         except Exception:
             pass
 
-    pygame.mixer.pre_init(44100, -16, 2, 4096) 
-    pygame.init()
     audio.inicializar()
     
     audio.cargar_sonido("tecla", "assets/audio/tecla.ogg", volumen=0.2) 
@@ -62,9 +60,6 @@ async def main():
     audio.cargar_sonido("laser_final", "assets/audio/Laser_boss_final.ogg", volumen=0.8)
     audio.cargar_sonido("laser_fase1", "assets/audio/Laser_fase1.ogg", volumen=0.5)
     
-    flags = pygame.SCALED | pygame.RESIZABLE
-    pantalla = pygame.display.set_mode((config.WIDTH, config.HEIGHT), flags)
-    pygame.display.set_caption("Protocolo: Brecha")
     reloj = pygame.time.Clock()
     filtro_crt = Scanlines()
 
@@ -75,7 +70,7 @@ async def main():
     textos_in_2 = ["El Bosque Nevado es tranquilo, pero confuso.", "Busca las 4 esferas doradas para activar el portal verde.", "Si te sientes perdida, yo te guiaré."]
     textos_out_2 = ["¡Encontraste la salida!", "El frío empieza a calar los huesos, pero la aldea está cerca.", "¡Vamos, los niños esperan!"]
 
-    textos_in_3 = ["¡Llegamos a la aldea a tiempo!", "Acércate a las casas para dejar los regalos.", "¡Hazlo rápido, antes de que amanezca en 15 segundos!"]
+    textos_in_3 = ["¡Llegamos a la aldea a tiempo!", "Acércate a las casas para dejar los regalos.", "¡Hazlo rápido, antes de que amanezca en 25 segundos!"]
     textos_out_3 = ["¡Trabajo perfecto, entregas completadas!", "Espera... ¿qué es ese ruido gigante?", "¡El suelo está temblando!"]
 
     textos_in_4 = ["¡Oh no! Has despertado al Muñeco Gruñón.", "Lánzale regalos con ESPACIO para calmar su furia.", "¡No dejes que el frío te congele!"]
@@ -131,6 +126,13 @@ async def main():
     maquina = StateMachine(diccionario_estados, "AUTH")
     if getattr(maquina.state, "es_partida", False):
         maquina.mostrando_controles = True
+
+    if sys.platform == "emscripten":
+        import platform
+        try:
+            platform.window.window_resize()
+        except Exception:
+            pass
 
     ejecutando = True
     while ejecutando:

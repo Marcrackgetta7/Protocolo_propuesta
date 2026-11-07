@@ -1,5 +1,6 @@
-import pygame
 import random
+from utils.vfx import GlowCache
+
 
 class Particle:
     def __init__(self, x, y, color):
@@ -10,7 +11,7 @@ class Particle:
         self.vx = random.uniform(-2, 2)
         self.vy = random.uniform(-2, 2)
         self.tamaño = random.randint(3, 6)
-        self.vida = 255 # Transparencia alfa
+        self.vida = 255  # Transparencia alfa
         self.velocidad_decaimiento = random.uniform(3, 7)
 
     def actualizar(self, dt):
@@ -21,8 +22,8 @@ class Particle:
         self.tamaño -= 0.1 * 60 * dt
 
     def dibujar(self, superficie):
-        if int(self.tamaño) > 0 and self.vida > 0:
-            surf = pygame.Surface((int(self.tamaño), int(self.tamaño)))
-            surf.fill(self.color)
-            # El modo de fusión BLEND_ADD para el efecto de luz y energía
-            superficie.blit(surf, (int(self.x), int(self.y)), special_flags=pygame.BLEND_ADD)
+        tam = int(self.tamaño)
+        if tam > 0 and self.vida > 0:
+            # Usa GlowCache pre-calculado en lugar de instanciar pygame.Surface por frame
+            ratio_vida = max(0.1, min(1.0, self.vida / 255.0))
+            GlowCache.blit(superficie, self.x, self.y, max(2, tam * 2), self.color, intensity=0.8 * ratio_vida)

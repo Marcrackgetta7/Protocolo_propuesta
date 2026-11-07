@@ -2,6 +2,7 @@ import pygame
 from utils.fonts import get_font
 from states.base_state import BaseState
 from utils import save_manager
+from utils.vfx import GlowCache, GradientCache, ProceduralUI
 import config
 
 LOGROS_DATA = [
@@ -16,6 +17,7 @@ LOGROS_DATA = [
     {"id": "Código Muerto", "tipo": "SECRETO", "nombre": "Código Muerto", "desc": "Acertijo: En el abismo del laberinto, la esquina inferior izquierda oculta un fantasma."}
 ]
 
+
 class Achievements(BaseState):
     def __init__(self):
         super().__init__()
@@ -25,6 +27,9 @@ class Achievements(BaseState):
         self.fuente_desc = get_font(14)
         self.datos = save_manager.cargar()
         self.scroll_y = 0
+        self.bg_surf = GradientCache.get_vertical(
+            config.WIDTH, config.HEIGHT, (10, 8, 18), (6, 6, 12), vignette=True
+        )
 
     def startup(self):
         self.datos = save_manager.cargar()
@@ -38,49 +43,72 @@ class Achievements(BaseState):
 
     def actualizar(self, dt):
         teclas = pygame.key.get_pressed()
-        if teclas[pygame.K_UP]: self.scroll_y += 300 * dt
-        if teclas[pygame.K_DOWN]: self.scroll_y -= 300 * dt
-        
-        if self.scroll_y > 0: self.scroll_y = 0
+        if teclas[pygame.K_UP]:
+            self.scroll_y += 300 * dt
+        if teclas[pygame.K_DOWN]:
+            self.scroll_y -= 300 * dt
+
+        if self.scroll_y > 0:
+            self.scroll_y = 0
         min_scroll = -max(0, (len(LOGROS_DATA) * 65) - (config.HEIGHT - 135))
-        if self.scroll_y < min_scroll: self.scroll_y = min_scroll
+        if self.scroll_y < min_scroll:
+            self.scroll_y = min_scroll
 
     def dibujar(self, superficie):
-        superficie.fill(config.COLOR_BG)
-        
-        y_base = 120 + self.scroll_y
+        superficie.blit(self.bg_surf, (0, 0))
+
+        y_base = int(120 + self.scroll_y)
         secretos_obtenidos = self.datos.get("secretos", [])
 
         for item in LOGROS_DATA:
-            desbloqueado = item["id"] in secretos_obtenidos
-            rect_item = pygame.Rect(config.WIDTH//2 - 440, y_base, 880, 55)
-            
-            if desbloqueado:
-                color_fondo = (20, 60, 20) if item["tipo"] == "LOGRO" else (60, 60, 20)
-                color_borde = (50, 200, 50) if item["tipo"] == "LOGRO" else (255, 215, 0)
-                estado_txt = "[ DESBLOQUEADO ]"
-            else:
-                color_fondo = (20, 20, 20)
-                color_borde = (80, 80, 80)
-                estado_txt = "[ BLOQUEADO ]"
+            if y_base > -70 and y_base < config.HEIGHT + 20:
+                desbloqueado = item["id"] in secretos_obtenidos
+                rect_item = pygame.Rect(config.WIDTH // 2 - 440, y_base, 880, 55)
 
-            pygame.draw.rect(superficie, color_fondo, rect_item)
-            pygame.draw.rect(superficie, color_borde, rect_item, 2)
-            
-            txt_nombre = self.fuente_nombre.render(f"{item['tipo']} - {item['nombre']}", True, color_borde)
-            txt_desc = self.fuente_desc.render(item["desc"], True, (200, 200, 200))
-            txt_estado = self.fuente_nombre.render(estado_txt, True, color_borde)
+                if desbloqueado:
+                    color_fondo = (16, 48, 24, 220) if item["tipo"] == "LOGRO" else (55, 45, 16, 220)
+                    color_borde = (50, 220, 80) if item["tipo"] == "LOGRO" else (255, 215, 0)
+                    estado_txt = "[ DESBLOQUEADO ]"
+                else:
+                    color_fondo = (20, 20, 26, 200)
+                    color_borde = (80, 80, 95)
+                    estado_txt = "[ BLOQUEADO ]"
 
-            superficie.blit(txt_nombre, (rect_item.x + 15, rect_item.y + 8))
-            superficie.blit(txt_desc, (rect_item.x + 15, rect_item.y + 30))
-            superficie.blit(txt_estado, (rect_item.right - 180, rect_item.y + 18))
+                ProceduralUI.draw_panel(
+                    superficie, rect_item,
+                    bg_color=color_fondo,
+                    border_color=color_borde,
+                    cut=8,
+                    glow=desbloqueado
+                )
+
+                # Medalla / nodo lateral
+                ix, iy = rect_item.x + 22, rect_item.centery
+                if desbloqueado:
+                    GlowCache.blit(superficie, ix, iy, 18, color_borde, intensity=0.5)
+                    pygame.draw.circle(superficie, color_borde, (ix, iy), 7)
+                else:
+                    pygame.draw.circle(superficie, color_borde, (ix, iy), 6, 2)
+
+                txt_nombre = self.fuente_nombre.render(f"{item['tipo']} - {item['nombre']}", True, color_borde)
+                txt_desc = self.fuente_desc.render(item["desc"], True, (210, 210, 220))
+                txt_estado = self.fuente_nombre.render(estado_txt, True, color_borde)
+
+                superficie.blit(txt_nombre, (rect_item.x + 42, rect_item.y + 8))
+                superficie.blit(txt_desc, (rect_item.x + 42, rect_item.y + 30))
+                superficie.blit(txt_estado, (rect_item.right - 180, rect_item.y + 18))
 
             y_base += 65
 
-        pygame.draw.rect(superficie, config.COLOR_BG, (0, 0, config.WIDTH, 100))
+        # Cabecera fija
+        pygame.draw.rect(superficie, (8, 8, 14), (0, 0, config.WIDTH, 102))
+        GlowCache.blit(superficie, config.WIDTH // 2, 40, 120, config.COLOR_ENERGY, intensity=0.3)
         tit = self.fuente_titulo.render("BASE DE DATOS: LOGROS Y SECRETOS", True, config.COLOR_ENERGY)
-        superficie.blit(tit, tit.get_rect(center=(config.WIDTH//2, 40)))
-        
-        inst = self.fuente_desc.render(f"Progreso Total: {len(secretos_obtenidos)}/9  |  [ Usa las flechas/rueda para bajar | ESC para volver ]", True, (150,150,150))
-        superficie.blit(inst, inst.get_rect(center=(config.WIDTH//2, 75)))
+        superficie.blit(tit, tit.get_rect(center=(config.WIDTH // 2, 40)))
+
+        inst = self.fuente_desc.render(
+            f"Progreso Total: {len(secretos_obtenidos)}/9  |  [ Usa las flechas/rueda para bajar | ESC para volver ]",
+            True, (165, 165, 180)
+        )
+        superficie.blit(inst, inst.get_rect(center=(config.WIDTH // 2, 75)))
         pygame.draw.line(superficie, config.COLOR_ENERGY, (50, 100), (config.WIDTH - 50, 100), 2)

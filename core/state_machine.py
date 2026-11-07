@@ -10,6 +10,7 @@ class StateMachine:
         self.state = self.states[self.state_name] # Objeto de la fase actual
         self.pausado = False
         self.pause_menu = PauseMenu(self)
+        self.state.done = False
         self.state.startup()                      # Arrancar la primera fase
         
         # Fade Transitions
@@ -39,6 +40,9 @@ class StateMachine:
             self.state.done = False # Evita múltiples activaciones
 
     def manejar_eventos(self, evento):
+        if self.haciendo_fade_out:
+            return
+
         if getattr(self, "mostrando_controles", False):
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 self.mostrando_controles = False
@@ -66,11 +70,15 @@ class StateMachine:
                 self.haciendo_fade_out = False
                 # Cambio real de estado
                 self.state.cleanup()
+                self.state.done = False
                 self.state_name = self.estado_siguiente_nombre
                 self.state = self.states[self.state_name]
                 self.pausado = False
+                self.state.done = False
                 self.state.startup()
+                self.mostrando_controles = bool(getattr(self.state, "es_partida", False))
                 self.haciendo_fade_in = True
+            return
         
         # Progreso del fade in
         elif self.haciendo_fade_in:
@@ -78,8 +86,6 @@ class StateMachine:
             if self.alpha_fade <= 0.0:
                 self.alpha_fade = 0.0
                 self.haciendo_fade_in = False
-                if getattr(self.state, "es_partida", False):
-                    self.mostrando_controles = True
 
         if self.pausado:
             self.pause_menu.actualizar(dt)
@@ -88,15 +94,13 @@ class StateMachine:
         if getattr(self, "mostrando_controles", False):
             return # Detener la lógica de la partida mientras se muestran los controles
             
-        # Solo actualizamos el estado si no estamos en pleno fade out oscuro
-        if not (self.haciendo_fade_out and self.alpha_fade > 200):
-            self.state.actualizar(dt)
-            
-            # Control de tiempo por fase
-            if getattr(self.state, "es_partida", False) and not self.pausado and not getattr(self, "mostrando_controles", False):
-                if not hasattr(self.state, "time_active"):
-                    self.state.time_active = 0.0
-                self.state.time_active += dt
+        self.state.actualizar(dt)
+        
+        # Control de tiempo por fase
+        if getattr(self.state, "es_partida", False) and not self.pausado and not getattr(self, "mostrando_controles", False):
+            if not hasattr(self.state, "time_active"):
+                self.state.time_active = 0.0
+            self.state.time_active += dt
 
     def dibujar(self, superficie):
         self.state.dibujar(superficie)
