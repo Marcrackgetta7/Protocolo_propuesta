@@ -108,7 +108,7 @@ class XmasBoss(BaseState):
         self.se_congelo_alguna_vez, self.ganado, self.timer_victoria = False, False, 0.0
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
 
-        self.compañero.mostrar_mensaje("¡Cuidado con la nieve! Mientras más te enfríes, más lento te moverás y dispararás.")
+        self.compañero.mostrar_mensaje("¡No dejes que su nieve te toque! Si te enfrías, irás y dispararás más lento.")
         audio.reproducir_musica("assets/audio/Jefe_nav.ogg", volumen=0.5)
 
     def manejar_eventos(self, evento):
@@ -164,7 +164,7 @@ class XmasBoss(BaseState):
                 )
             )
             self.timer_ayuda = 0.0
-            self.compañero.mostrar_mensaje("¡Te envié un núcleo de calor! Quédate ahí para descongelarte.")
+            self.compañero.mostrar_mensaje("¡Te mandé un núcleo de calor! Entra rápido para que no te congeles.")
 
         for z in self.zonas_calor[:]:
             z.actualizar(dt)
@@ -224,16 +224,16 @@ class XmasBoss(BaseState):
                         self.congelacion = 100
                         self.congelado, self.se_congelo_alguna_vez = True, True
                         self.timer_descongelar = 3.0
-                        self.compañero.mostrar_mensaje("¡TE HAS CONGELADO! No puedes moverte y el jefe se está curando.")
+                        self.compañero.mostrar_mensaje("¡NO, TE CONGELASTE! ¡Resiste, el muñeco aprovechará para curarse!")
                         audio.reproducir("explosion")
 
         if self.salud_boss <= 0 and not self.ganado:
             self.ganado = True
             if not self.se_congelo_alguna_vez and "L4" not in self.logros_obtenidos:
                 save_manager.guardar(secreto="L4")
-                self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Sangre Caliente (Cero congelaciones)!")
+                self.compañero.mostrar_mensaje("¡LOGRO: Sangre Caliente! ¡Ni siquiera logró congelarte una vez, increíble!")
             else:
-                self.compañero.mostrar_mensaje("¡Muñeco de nieve destruido! Avanzando...")
+                self.compañero.mostrar_mensaje("¡Lo derribaste! Pero espera... ¿qué está pasando, por qué...?")
 
     def _dibujar_boss(self, superficie):
         bx, by = int(self.boss_x), int(self.boss_y)

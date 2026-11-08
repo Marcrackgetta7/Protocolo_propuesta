@@ -218,7 +218,7 @@ class XmasDelivery(BaseState):
                 self.game_over = True
                 self.timer_game_over = 0.0
                 audio.reproducir("explosion")
-                self.compañero.mostrar_mensaje("¡Se acabó el tiempo! El trineo necesita más energía.")
+                self.compañero.mostrar_mensaje("¡Uy, nos ganó el amanecer! Recargo el trineo rápido y vamos de nuevo.")
             return
 
         teclas = pygame.key.get_pressed()
@@ -251,9 +251,9 @@ class XmasDelivery(BaseState):
                     self.ganado = True
                     if self.tiempo >= 5.0 and "L3" not in self.logros_obtenidos:
                         save_manager.guardar(secreto="L3")
-                        self.compañero.mostrar_mensaje(f"¡LOGRO DESBLOQUEADO: Santa Veloz! (+{self.tiempo:.1f}s sobrantes)")
+                        self.compañero.mostrar_mensaje(f"¡LOGRO: Santa Veloz! ¡Te sobraron {self.tiempo:.1f}s, eres rapidísima!")
                     else:
-                        self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
+                        self.compañero.mostrar_mensaje("¡Todas las casas listas! Hacemos un gran equipo. Espera... ¿oíste eso?")
 
     def dibujar(self, superficie):
         superficie.blit(self.bg_surf, (0, 0))

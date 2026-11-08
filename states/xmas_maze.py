@@ -154,7 +154,7 @@ class XmasMaze(BaseState):
             Snowman(self.offset_x + 300, self.offset_y + 400)
         ]
 
-        self.compañero.mostrar_mensaje("Bosque Nevado. Encuentra las 4 esferas para abrir el camino.")
+        self.compañero.mostrar_mensaje("Qué frío hace aquí... Busca las 4 esferas doradas, yo te vigilo el camino.")
         audio.reproducir_musica("assets/audio/Fase2_nav.ogg", volumen=0.4)
 
     def manejar_eventos(self, evento):
@@ -188,7 +188,7 @@ class XmasMaze(BaseState):
                 self.game_over = True
                 self.timer_game_over = 0.0
                 audio.reproducir("explosion")
-                self.compañero.mostrar_mensaje("¡Se acabó el tiempo! Has quedado congelado.")
+                self.compañero.mostrar_mensaje("¡Brrr, nos congelamos por el tiempo! Ven, te caliento y lo intentamos de nuevo.")
             return
 
         teclas = pygame.key.get_pressed()
@@ -230,12 +230,12 @@ class XmasMaze(BaseState):
                 self.esferas_recogidas += 1
                 audio.reproducir("anomalia")
                 if self.esferas_recogidas == 4:
-                    self.compañero.mostrar_mensaje("¡Todas las esferas listas! Corre al portal verde.")
+                    self.compañero.mostrar_mensaje("¡Esa era la última esfera! ¡Corre al portal verde antes de congelarnos!")
 
         if self.secreto_rect and rect_jugador.colliderect(self.secreto_rect):
             save_manager.guardar(secreto="Estrella Helada")
             self.secreto_rect = None
-            self.compañero.mostrar_mensaje("¡SECRETO DESCUBIERTO: Estrella Helada!")
+            self.compañero.mostrar_mensaje("¡SECRETO: Estrella Helada! Sabía que tu curiosidad tendría recompensa.")
 
         for sm in self.snowmen:
             sm.actualizar(dt, self.jugador.x, self.jugador.y)
@@ -245,7 +245,7 @@ class XmasMaze(BaseState):
                     self.timer_game_over = 0.0
                     self.shake.iniciar(10, 0.4)
                     audio.reproducir("explosion")
-                    self.compañero.mostrar_mensaje("¡Te atrapó un muñeco de nieve!")
+                    self.compañero.mostrar_mensaje("¡Cuidado! Te atrapó ese muñeco. ¡Arriba, intentémoslo otra vez!")
 
         if self.esferas_recogidas >= 4 and rect_jugador.colliderect(self.salida):
             if not self.ganado:
@@ -254,9 +254,9 @@ class XmasMaze(BaseState):
                 self.snowmen.clear()
                 if self.tiempo_jugado < 15.0 and "L2" not in self.logros_obtenidos:
                     save_manager.guardar(secreto="L2")
-                    self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Velocista Nevado (<15s)!")
+                    self.compañero.mostrar_mensaje("¡LOGRO: Velocista Nevado (<15s)! ¡Pasaste volando, ni el frío te alcanzó!")
                 else:
-                    self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
+                    self.compañero.mostrar_mensaje("¡Salimos del bosque! Sabía que encontrarías el camino. ¡Sigamos!")
 
     def dibujar(self, superficie):
         self.surf_temp.blit(self.bg_surf, (0, 0))

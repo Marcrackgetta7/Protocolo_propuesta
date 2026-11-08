@@ -136,7 +136,7 @@ class Maze(BaseState):
             Monster(self.offset_x + 500, self.offset_y + 200)
         ]
 
-        self.compañero.mostrar_mensaje("La visibilidad es nula. Hackea los terminales verdes para encender las luces.", id_voz="v_f2_in")
+        self.compañero.mostrar_mensaje("No te asustes por la oscuridad. Toca las terminales verdes y te daré luz.", id_voz="v_f2_in")
         audio.reproducir_musica("assets/audio/Fase2_dark.ogg", volumen=0.3)
 
     def manejar_eventos(self, evento):
@@ -201,19 +201,19 @@ class Maze(BaseState):
         if self.secreto_rect and rect_jugador.colliderect(self.secreto_rect):
             save_manager.guardar(secreto="Código Muerto")
             self.secreto_rect = None
-            self.compañero.mostrar_mensaje("¡SECRETO ENCONTRADO: Código Muerto!")
+            self.compañero.mostrar_mensaje("¡SECRETO: Código Muerto! Hasta en plena crisis encuentras rincones ocultos.")
 
         if not self.hackeando:
             for cf in self.cortafuegos:
                 if math.hypot(self.jugador.x - cf.centerx, self.jugador.y - cf.centery) < 45:
                     self.hackeando, self.cortafuegos_actual, self.timer_hackeo = True, cf, 0.8
-                    self.compañero.mostrar_mensaje("¡Bloqueo! Dame un segundo, derribando cortafuegos...")
+                    self.compañero.mostrar_mensaje("¡Es un cortafuegos! Quédate cerquita un segundo mientras lo elimino...")
                     break
         else:
             dist_cancel = math.hypot(self.jugador.x - self.cortafuegos_actual.centerx, self.jugador.y - self.cortafuegos_actual.centery)
             if dist_cancel > 60:
                 self.hackeando = False
-                self.compañero.mostrar_mensaje("Conexión perdida. ¡Te alejaste demasiado de la terminal!")
+                self.compañero.mostrar_mensaje("¡Ey, se cortó la señal! Vuelve a acercarte al muro para terminar.")
             else:
                 self.timer_hackeo -= dt
                 if self.timer_hackeo <= 0:
@@ -228,7 +228,7 @@ class Maze(BaseState):
                     self.cortafuegos_actual = None
                     self.hackeando = False
                     self.cortafuegos_rotos += 1
-                    self.compañero.mostrar_mensaje(f"¡Roto! ({self.cortafuegos_rotos}/3) Alerta: Limpiador desplegado.")
+                    self.compañero.mostrar_mensaje(f"¡Abierto! ({self.cortafuegos_rotos}/3) ¡Corre, el ruido atrajo a un Limpiador!")
                     self.monstruos.append(Monster(self.offset_x + 880, self.offset_y + 440))
 
         for m in self.monstruos:
@@ -237,7 +237,7 @@ class Maze(BaseState):
                     self.game_over = True
                     self.timer_game_over = 0.0
                     self.shake.iniciar(15, 0.4)
-                    self.compañero.mostrar_mensaje("¡Te atrapó! Interviniendo código... Reiniciando sistema.")
+                    self.compañero.mostrar_mensaje("¡No! ¡Te alcanzó! Espera, rebobino el código para salvarte... ¡Listo!")
                 break
 
         if rect_jugador.colliderect(self.salida):
@@ -250,9 +250,9 @@ class Maze(BaseState):
                 self.monstruos.clear()
                 if self.cortafuegos_rotos >= 3 and "L6" not in self.logros_obtenidos:
                     save_manager.guardar(secreto="L6")
-                    self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Fuerza Bruta!")
+                    self.compañero.mostrar_mensaje("¡LOGRO: Fuerza Bruta! ¿Para qué rodear si podíamos romper todo, verdad?")
                 else:
-                    self.compañero.mostrar_mensaje("¡Laberinto superado! Volviendo al menú...")
+                    self.compañero.mostrar_mensaje("¡Salimos de ese laberinto! Respira... ya estamos cerca del final.")
 
     def dibujar(self, superficie):
         self.surf_temp.fill((5, 5, 8))

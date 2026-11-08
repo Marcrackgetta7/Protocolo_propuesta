@@ -34,9 +34,15 @@ class TypewriterText:
         self.pos = pos
         self.speed = speed
         if max_width is None and config.WIDTH:
-            max_width = max(200, config.WIDTH - pos[0] - 25)
+            if 0 <= pos[0] < config.WIDTH - 225:
+                max_width = max(200, config.WIDTH - pos[0] - 25)
+            else:
+                max_width = config.WIDTH - 80
         self.max_width = max_width
         self.text = wrap_text(font, text, max_width)
+        self.lines = self.text.split('\n')
+        self.line_height = max(24, self.font.get_linesize() + 2)
+        self.total_height = len(self.lines) * self.line_height
         self.current_text = ""
         self.index = 0
         self.timer = 0.0
@@ -60,7 +66,7 @@ class TypewriterText:
     def dibujar(self, superficie, alpha=255):
         lineas = self.current_text.split('\n')
         y_offset = self.pos[1]
-        line_height = max(24, self.font.get_linesize() + 2)
+        line_height = self.line_height
         for linea in lineas:
             if linea:
                 texto_surface = self.font.render(linea, True, config.COLOR_TEXT)

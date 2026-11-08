@@ -4,7 +4,7 @@ import pygame
 from utils.fonts import get_font
 from states.base_state import BaseState
 from entities.player import Player
-from utils.text_renderer import TypewriterText
+from utils.text_renderer import TypewriterText, wrap_text
 from utils import audio
 from utils.vfx import (
     GlowCache,
@@ -60,7 +60,18 @@ class Gallery(BaseState):
             {"x": 9400, "texto": "Así que, antes de que cruces este último umbral...\nQuiero que leas con atención la siguiente pantalla.\nRespira profundo.", "escritor": None}
         ]
 
-        # Cargar imágenes de forma segura
+        # Dimensiones base y márgenes internos de los paneles de texto
+        self.foto_panel_w = 380
+        self.foto_pad_x = 22
+        self.foto_pad_y = 14
+
+        self.carta_panel_w = 760
+        self.carta_pad_x = 28
+        self.carta_pad_y = 22
+
+        # Cargar imágenes de forma segura y pre-calcular dimensiones de paneles
+        line_h_fotos = max(24, self.fuente_fotos.get_linesize() + 2)
+        max_w_fotos = self.foto_panel_w - self.foto_pad_x * 2
         for rec in self.recuerdos:
             if os.path.exists(rec["ruta"]):
                 img = pygame.image.load(rec["ruta"]).convert_alpha()
@@ -73,6 +84,29 @@ class Gallery(BaseState):
                 txt = self.fuente_fotos.render("RECUERDO", True, config.COLOR_TEXT)
                 surf.blit(txt, txt.get_rect(center=(150, 215)))
                 rec["superficie"] = surf
+
+            wrapped_foto = wrap_text(self.fuente_fotos, rec["texto"], max_w_fotos)
+            num_lineas_foto = len(wrapped_foto.split("\n"))
+            rec["max_w"] = max_w_fotos
+            rec["panel_w"] = self.foto_panel_w
+            rec["panel_h"] = num_lineas_foto * line_h_fotos + self.foto_pad_y * 2
+            ProceduralUI.get_panel(
+                rec["panel_w"], rec["panel_h"],
+                bg_color=(12, 8, 20, 190), border_color=(255, 130, 180), cut=8
+            )
+
+        line_h_cartas = max(24, self.fuente_cartas.get_linesize() + 2)
+        max_w_cartas = self.carta_panel_w - self.carta_pad_x * 2
+        for msg in self.mensajes_largos:
+            wrapped_carta = wrap_text(self.fuente_cartas, msg["texto"], max_w_cartas)
+            num_lineas_carta = len(wrapped_carta.split("\n"))
+            msg["max_w"] = max_w_cartas
+            msg["panel_w"] = self.carta_panel_w
+            msg["panel_h"] = num_lineas_carta * line_h_cartas + self.carta_pad_y * 2
+            ProceduralUI.get_panel(
+                msg["panel_w"], msg["panel_h"],
+                bg_color=(16, 10, 26, 205), border_color=config.COLOR_ENERGY, cut=14
+            )
 
     def startup(self):
         self.jugador = Player(100, config.HEIGHT // 2 + 50)
@@ -120,7 +154,11 @@ class Gallery(BaseState):
         for rec in self.recuerdos:
             if abs(self.jugador.x - rec["x"]) < 400 and rec["escritor"] is None:
                 rec["escritor"] = TypewriterText(
-                    self.fuente_fotos, rec["texto"], (rec["x"] - 150, config.HEIGHT // 2 + 100), speed=0.06
+                    self.fuente_fotos,
+                    rec["texto"],
+                    (0, 0),
+                    speed=0.06,
+                    max_width=rec["max_w"]
                 )
             if rec["escritor"]:
                 rec["escritor"].actualizar(dt)
@@ -129,7 +167,11 @@ class Gallery(BaseState):
         for msg in self.mensajes_largos:
             if abs(self.jugador.x - msg["x"]) < 300 and msg["escritor"] is None:
                 msg["escritor"] = TypewriterText(
-                    self.fuente_cartas, msg["texto"], (msg["x"] - 350, config.HEIGHT // 2 - 50), speed=0.05
+                    self.fuente_cartas,
+                    msg["texto"],
+                    (0, 0),
+                    speed=0.05,
+                    max_width=msg["max_w"]
                 )
             if msg["escritor"]:
                 msg["escritor"].actualizar(dt)
@@ -180,7 +222,9 @@ class Gallery(BaseState):
                 pygame.draw.rect(superficie, config.COLOR_TEXT, rect_img, 2)
 
                 if rec["escritor"]:
-                    caja_txt = pygame.Rect(int(pos_x_pantalla) - 180, config.HEIGHT // 2 + 90, 360, 72)
+                    pw, ph = rec["panel_w"], rec["panel_h"]
+                    base_y = min(config.HEIGHT // 2 + 90, config.HEIGHT - ph - 14)
+                    caja_txt = pygame.Rect(int(pos_x_pantalla) - pw // 2, int(base_y + flote * 0.5), pw, ph)
                     ProceduralUI.draw_panel(
                         superficie, caja_txt,
                         bg_color=(12, 8, 20, 190),
@@ -188,16 +232,20 @@ class Gallery(BaseState):
                         cut=8,
                         glow=False
                     )
-                    rec["escritor"].pos = (int(pos_x_pantalla) - 150, config.HEIGHT // 2 + 100)
+                    rec["escritor"].pos = (caja_txt.x + self.foto_pad_x, caja_txt.y + self.foto_pad_y)
                     rec["escritor"].dibujar(superficie)
 
-        # Dibujar Mensajes Extensos en paneles flotantes
+        # Dibujar Mensajes Extensos en paneles flotantes con altura dinámica
         for msg in self.mensajes_largos:
             pos_x_pantalla = msg["x"] - self.cam_x
             if -500 < pos_x_pantalla < config.WIDTH + 500:
                 if msg["escritor"]:
                     flote_msg = int(math.sin(self.tiempo_portal * 2.0 + msg["x"] * 0.01) * 4)
-                    panel_msg = pygame.Rect(int(pos_x_pantalla) - 380, config.HEIGHT // 2 - 80 + flote_msg, 760, 135)
+                    pw, ph = msg["panel_w"], msg["panel_h"]
+                    # Centrar verticalmente sobre el piso sin salirse por arriba ni tapar el suelo
+                    ideal_top = (piso_y - ph) // 2
+                    lim_top = max(28, min(ideal_top, piso_y - ph - 18))
+                    panel_msg = pygame.Rect(int(pos_x_pantalla) - pw // 2, lim_top + flote_msg, pw, ph)
                     ProceduralUI.draw_panel(
                         superficie, panel_msg,
                         bg_color=(16, 10, 26, 205),
@@ -209,7 +257,7 @@ class Gallery(BaseState):
                         superficie, panel_msg.centerx, panel_msg.top - 14,
                         scale=0.35, color=config.COLOR_ENERGY, alpha=210, glow=True
                     )
-                    msg["escritor"].pos = (int(pos_x_pantalla) - 350, config.HEIGHT // 2 - 50 + flote_msg)
+                    msg["escritor"].pos = (panel_msg.x + self.carta_pad_x, panel_msg.y + self.carta_pad_y)
                     msg["escritor"].dibujar(superficie)
 
         # Dibujar El Portal Final (Vórtice multicapa)

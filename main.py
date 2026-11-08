@@ -64,24 +64,72 @@ async def main():
     filtro_crt = Scanlines()
 
     # --- DIALOGOS DE LAS CINEMATICAS ---
-    textos_in_1 = ["¡Bienvenida a este Cuento de Navidad!", "Los regalos se han caído del trineo en pleno vuelo.", "¡Ayúdame a atraparlos antes de que se rompan!"]
-    textos_out_1 = ["¡Uf! Salvamos los regalos a tiempo.", "Pero hemos aterrizado en medio de la nada...", "Debemos encontrar el camino en el Bosque Nevado."]
+    textos_in_1 = [
+        "¡Bienvenida a este Cuento de Navidad!", 
+        "Una sacudida en el cielo hizo que los regalos cayeran del trineo.", 
+        "¡Ayúdame a atraparlos todos antes de que se rompan contra el suelo!"
+    ]
+    textos_out_1 = [
+        "¡Uf! Salvamos hasta el último regalo justo a tiempo.", 
+        "Pero el aterrizaje forzoso nos dejó en medio de la nada...", 
+        "Debemos cruzar el Bosque Nevado para retomar el rumbo."
+    ]
 
-    textos_in_2 = ["El Bosque Nevado es tranquilo, pero confuso.", "Busca las 4 esferas doradas para activar el portal verde.", "Si te sientes perdida, yo te guiaré."]
-    textos_out_2 = ["¡Encontraste la salida!", "El frío empieza a calar los huesos, pero la aldea está cerca.", "¡Vamos, los niños esperan!"]
+    textos_in_2 = [
+        "El Bosque Nevado parece tranquilo, pero sus caminos engañan.", 
+        "Busca las 4 esferas doradas para activar el portal verde.", 
+        "No te preocupes si te sientes perdida, yo te guiaré desde aquí."
+    ]
+    textos_out_2 = [
+        "¡Lograste activar el portal! Sabía que encontrarías la salida.", 
+        "Qué raro... el cielo acaba de parpadear como una pantalla rota.", 
+        "No importa, la aldea está frente a nosotros. ¡Vamos, los niños esperan!"
+    ]
 
-    textos_in_3 = ["¡Llegamos a la aldea a tiempo!", "Acércate a las casas para dejar los regalos.", "¡Hazlo rápido, antes de que amanezca en 25 segundos!"]
-    textos_out_3 = ["¡Trabajo perfecto, entregas completadas!", "Espera... ¿qué es ese ruido gigante?", "¡El suelo está temblando!"]
+    textos_in_3 = [
+        "¡Llegamos a la aldea! Pero el reloj avanza demasiado rápido.", 
+        "Acércate a las casas para dejar los regalos que recuperamos.", 
+        "¡Hazlo rápido, tienes 25 segundos antes de que amanezca!"
+    ]
+    textos_out_3 = [
+        "¡Trabajo perfecto, todas las entregas están completas!", 
+        "Espera... la música se detuvo de golpe. ¿Escuchas esa estática?", 
+        "¡El suelo está temblando, algo está corrompiendo este mundo!"
+    ]
 
-    textos_in_4 = ["¡Oh no! Has despertado al Muñeco Gruñón.", "Lánzale regalos con ESPACIO para calmar su furia.", "¡No dejes que el frío te congele!"]
-    textos_out_4 = ["¡El Muñeco ha sido derrotado!", "Pero algo no está bien...", "La nieve... se está deshaciendo en código fuente...", "[ ALERTA: BRECHA DETECTADA ]"]
+    textos_in_4 = [
+        "¡Cuidado! Una anomalía infectó al Muñeco de Nieve y lo volvió loco.", 
+        "¡Lánzale regalos con ESPACIO para purificarlo y calmar su furia!", 
+        "¡No te quedes quieta o su tormenta te congelará!"
+    ]
+    textos_out_4 = [
+        "¡El Muñeco cayó! Pero el fallo ya se expandió demasiado...", 
+        "Mira a tu alrededor: la nieve se está deshaciendo en código fuente...", 
+        "[ ERROR CRÍTICO: CUENTO CORROMPIDO // BRECHA DETECTADA ]"
+    ]
 
-    textos_out_5 = ["> ANOMALÍA RECUPERADA...", "> El sistema central ha detectado nuestra presencia.", "> Nos han encerrado en el laberinto de cortafuegos."]
+    textos_out_5 = [
+        "> ANOMALÍA SUPERADA... Lograste escapar de esa trampa.", 
+        "> El Glitch tomó el control del Sistema Central y quiere borrarnos.", 
+        "> Nos acaba de encerrar en su laberinto de cortafuegos. ¡No te rindas!"
+    ]
 
-    textos_in_6 = ["> Nivel de seguridad máximo.", "> El laberinto está patrullado por Limpiadores.", "> Rompe los cortafuegos y encuentra la salida."]
-    textos_out_6 = ["> CORTAFUEGOS DERRIBADOS.", "> Acceso al Núcleo principal concedido.", "> Prepárate... esto no será nada fácil."]
+    textos_in_6 = [
+        "> Nivel de corrupción: MÁXIMO. El sistema liberó a los Limpiadores.", 
+        "> Son programas hostiles diseñados para eliminar todo a su paso.", 
+        "> Rompe los cortafuegos del laberinto y abre una brecha hacia la salida."
+    ]
+    textos_out_6 = [
+        "> ¡CORTAFUEGOS DERRIBADOS! Ni siquiera el código roto puede detenerte.", 
+        "> Tenemos acceso directo al origen del fallo: el Núcleo Principal.", 
+        "> Prepárate... si sobrevivimos a esto, recuperaremos el control."
+    ]
 
-    textos_in_7 = ["> ADVERTENCIA: NÚCLEO INESTABLE.", "> Su escudo es impenetrable a largo plazo.", "> Mantente con vida y esquiva el barrido láser."]
+    textos_in_7 = [
+        "> ADVERTENCIA: EL NÚCLEO ESTÁ TOTALMENTE CORROMPIDO E INESTABLE.", 
+        "> Su escudo de sobrecarga es impenetrable por ahora; no podrás dañarlo.", 
+        "> ¡Mantente con vida y esquiva el barrido láser hasta que se agote!"
+    ]
     diccionario_estados = {
         "AUTH": Auth(),
         "MAIN_MENU": MainMenu(),

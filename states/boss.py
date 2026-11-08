@@ -118,7 +118,7 @@ class Boss(BaseState):
 
         self.yo_x, self.yo_y = -100, -100
         self.boss_x, self.boss_y = config.WIDTH / 2, 100
-        self.compañero.mostrar_mensaje("¡CUIDADO! Hemos despertado al Núcleo. ¡Dispara con ESPACIO!", id_voz="v_f3_in")
+        self.compañero.mostrar_mensaje("¡Ahí está el origen del Glitch! ¡Eliminémoslo juntos!", id_voz="v_f3_in")
         audio.reproducir_musica("assets/audio/Jefe_dark.ogg", volumen=0.5)
 
     def manejar_eventos(self, evento):
@@ -129,7 +129,17 @@ class Boss(BaseState):
         self.compañero.actualizar(dt)
         self.bursts.update(dt)
         teclas = pygame.key.get_pressed()
-        factor_salud = max(0.01, self.salud_boss / 100.0)
+
+        # Escalado de presión por tiempo en combate y desgaste de escudo/salud de la jugadora
+        desgaste_jugador = 1.0 - max(0.0, (self.escudo_jugador + max(0.0, self.salud_jugador - 20.0)) / 180.0)
+        if self.estado == "COMBAT":
+            progreso_tiempo = min(1.0, self.timer_fase / 35.0)
+        elif self.estado in ["WARNING", "SACRIFICE", "GLITCH"]:
+            progreso_tiempo = 1.0
+        else:
+            progreso_tiempo = 0.0
+        presion = min(0.99, max(progreso_tiempo, desgaste_jugador * 0.85))
+        factor_salud = max(0.01, 1.0 - presion)
         self.angulo_nucleo += (1.8 + (1.0 - factor_salud) * 3.5) * dt
 
         if self.hit_flash_timer > 0:
@@ -162,13 +172,13 @@ class Boss(BaseState):
             if self.timer_fase > 3.0:
                 self.estado = "COMBAT"
                 self.timer_fase = 0.0
-                self.compañero.mostrar_mensaje("¡Trata de bajarle la vida! Te protegeré con los escudos.", id_voz="v_f3_esc")
+                self.compañero.mostrar_mensaje("¡Tú concéntrate en bajarle la vida! Yo mantengo tus escudos, tranquila.", id_voz="v_f3_esc")
 
         elif self.estado == "COMBAT":
             if self.timer_fase > 15.0 and self.disparos_hechos == 0 and not self.logro_pacifista_entregado:
                 save_manager.guardar(secreto="Pacifista")
                 self.logro_pacifista_entregado = True
-                self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Pacifista (15s sin disparar)!")
+                self.compañero.mostrar_mensaje("¡LOGRO: Pacifista! ¡15s esquivando todo sin disparar, estás loca!")
 
             self.timer_disparo += dt
             self.timer_radial += dt
@@ -199,14 +209,11 @@ class Boss(BaseState):
                     self.proyectiles_boss.append(ProyectilBoss(self.boss_x, self.boss_y, tx, ty, speed=vel_radial))
                 self.timer_radial = 0.0
 
-            if self.salud_jugador <= 20 or self.salud_boss <= 1:
+            if self.salud_jugador <= 20:
                 self.estado = "WARNING"
                 self.timer_fase = 0.0
                 audio.reproducir("laser_final")
-                if self.salud_boss <= 1:
-                    self.compañero.mostrar_mensaje("¡Lo logramos! Espera... ¡Núcleo crítico! ¡Va a autodestruirse con el láser!", id_voz="v_f3_win")
-                else:
-                    self.compañero.mostrar_mensaje("¡ALERTA! Va a usar el láser de purga... ¡Tus escudos no resistirán!", id_voz="v_f3_alert")
+                self.compañero.mostrar_mensaje("¡NO! ¡Está cargando un láser de borrado total, tu escudo no va a soportar!", id_voz="v_f3_alert")
                 self.shake.iniciar(8, 2.0)
 
         elif self.estado == "WARNING":
@@ -215,7 +222,7 @@ class Boss(BaseState):
                 self.timer_fase = 0.0
                 self.yo_x, self.yo_y = self.jugador.x, self.jugador.y - 50
                 self.shake.iniciar(25, 4.0)
-                self.compañero.mostrar_mensaje("¡Escudos críticos! No vas a sobrevivir a eso...", id_voz="v_f3_crit")
+                self.compañero.mostrar_mensaje("¡Tus escudos cayeron! No voy a dejar que te borren... ¡Yo te cubriré aunque me cueste la vida!", id_voz="v_f3_crit")
 
         elif self.estado == "SACRIFICE":
             if random.random() < 0.45:
@@ -225,9 +232,9 @@ class Boss(BaseState):
                     heart_chance=0.0, speed_range=(70, 220)
                 )
             if 1.5 < self.timer_fase < 1.6:
-                self.compañero.mostrar_mensaje("Redirigiendo todo el impacto hacia mi terminal...", id_voz="v_f3_sac1")
+                self.compañero.mostrar_mensaje("¡Desviando todo el rayo hacia mi consola! ¡Aguanta un poco más, por favor!", id_voz="v_f3_sac1")
             elif 3.5 < self.timer_fase < 3.6:
-                self.compañero.mostrar_mensaje("Sobrecarga inminente. ¡Forzando apagado de emergencia del sistema!", id_voz="v_f3_sac2")
+                self.compañero.mostrar_mensaje("¡Mi sistema se quema, pero a ti no te tocará! ¡Forzando apagado...!", id_voz="v_f3_sac2")
             if self.timer_fase > 5.5:
                 self.estado = "GLITCH"
                 self.timer_fase = 0.0
@@ -249,8 +256,9 @@ class Boss(BaseState):
                 self.bursts.emit(b.x, b.y, count=5, colors=[config.COLOR_DANGER, (255, 220, 220)], heart_chance=0.0)
                 if b in self.balas_jugador:
                     self.balas_jugador.remove(b)
-                if self.salud_boss > 1:
-                    self.salud_boss -= 1
+                if self.salud_boss > 35.0:
+                    resistencia = max(0.15, (self.salud_boss - 35.0) / 65.0)
+                    self.salud_boss = max(35.0, self.salud_boss - 0.15 * resistencia)
 
         for p in self.proyectiles_boss[:]:
             p.actualizar(dt)

@@ -35,10 +35,12 @@ class CompanionUI:
 
     def mostrar_mensaje(self, texto, id_voz=None):
         audio.detener_sonido("tecla")
-        max_ancho = config.WIDTH - 160
+        max_ancho = config.WIDTH - 140
         self.escritor = TypewriterText(
             self.fuente, texto, (105, self.y_fija + 16), speed=0.04, max_width=max_ancho
         )
+        y_centrado = self.y_fija + max(10, (80 - self.escritor.total_height) // 2)
+        self.escritor.pos = (105, y_centrado)
         if id_voz:
             audio.reproducir(id_voz, parar_anterior=True)
 
@@ -52,7 +54,8 @@ class CompanionUI:
         alfa_texto = 100 if es_fantasma else 255
 
         if self.escritor:
-            self.escritor.pos = (105, self.y_fija + 16)
+            y_centrado = self.y_fija + max(10, (80 - self.escritor.total_height) // 2)
+            self.escritor.pos = (105, y_centrado)
 
         panel = self.panel_fantasma if es_fantasma else self.panel_normal
         retrato = self.retrato_fantasma if es_fantasma else self.retrato_normal

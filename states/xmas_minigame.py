@@ -102,7 +102,7 @@ class XmasMinigame(BaseState):
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
         self.jugador_rect.x = config.WIDTH // 2 - 40
         self.tiempo = 0.0
-        self.compañero.mostrar_mensaje("¡Feliz Navidad! Atrapa 10 regalos. ¡Si se caen, pierdes puntos!")
+        self.compañero.mostrar_mensaje("¡Hola San, feliz navidad! Ayúdame a atrapar 10 regalos, ¡no dejes que se nos caigan!")
         audio.reproducir_musica("assets/audio/fase1_nav.ogg", volumen=0.4)
 
     def manejar_eventos(self, evento):
@@ -151,9 +151,9 @@ class XmasMinigame(BaseState):
                     # Balance: Te permitimos que se te caiga 1 por accidente
                     if self.regalos_perdidos <= 1 and "L1" not in self.logros_obtenidos:
                         save_manager.guardar(secreto="L1")
-                        self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Manos Ágiles!")
+                        self.compañero.mostrar_mensaje("¡LOGRO: Manos Ágiles! ¡Wao, qué manos! No se te escapa nada.")
                     else:
-                        self.compañero.mostrar_mensaje("¡Nivel Completado! Avanzando...")
+                        self.compañero.mostrar_mensaje("¡Bien hecho! Ya tenemos todos los regalos, ¡sigamos adelante!")
 
             elif r.y > config.HEIGHT:
                 self.regalos.remove(r)
@@ -161,7 +161,7 @@ class XmasMinigame(BaseState):
                 if self.score > 0:
                     self.score -= 1
                     audio.reproducir("explosion")
-                    self.compañero.mostrar_mensaje("¡Oh no! Se rompió un regalo. Perdiste 1 punto.")
+                    self.compañero.mostrar_mensaje("¡Uy, ese sonó fuerte! Se nos cayó uno (-1 pto), ¡no pasa nada, tú puedes!")
 
     def _dibujar_trineo(self, superficie):
         r = self.jugador_rect

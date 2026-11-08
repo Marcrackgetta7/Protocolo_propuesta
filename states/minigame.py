@@ -66,7 +66,7 @@ class Minigame(BaseState):
         self.logros_obtenidos = save_manager.cargar().get("secretos", [])
 
         self.spawn_anomalia()
-        self.compañero.mostrar_mensaje("Infiltración detectada. Muévete rápido, te cubro las espaldas.", id_voz="v_f1_in")
+        self.compañero.mostrar_mensaje("Tranquila, estoy contigo. Muévete rápido, yo te cubro.", id_voz="v_f1_in")
         audio.reproducir_musica("assets/audio/Fase1_dark.ogg", volumen=0.4)
 
     def spawn_anomalia(self):
@@ -157,18 +157,18 @@ class Minigame(BaseState):
                     audio.reproducir("anomalia")
 
                     if self.anomalias_recolectadas == 2:
-                        self.compañero.mostrar_mensaje("¡Bien! Cuidado, el sistema está acelerando...", id_voz="v_f1_mid")
+                        self.compañero.mostrar_mensaje("¡Eso es, ya tienes dos! Ojo, el Glitch se enojó y está acelerando...", id_voz="v_f1_mid")
                     elif self.anomalias_recolectadas == 4:
-                        self.compañero.mostrar_mensaje("¡Solo falta una! ¡Cuidado con el ataque múltiple!", id_voz="v_f1_fin")
+                        self.compañero.mostrar_mensaje("¡Solo falta una para salir! ¡Cuidado, viene una ráfaga doble!", id_voz="v_f1_fin")
                     if self.anomalias_recolectadas < 5:
                         self.spawn_anomalia()
                     else:
                         self.ganado = True
                         if self.golpes_laser == 0 and "L5" not in self.logros_obtenidos:
                             save_manager.guardar(secreto="L5")
-                            self.compañero.mostrar_mensaje("¡LOGRO DESBLOQUEADO: Fantasma Digital (Cero Láseres)!")
+                            self.compañero.mostrar_mensaje("¡LOGRO: Fantasma Digital! ¡Ni un solo láser te rozó, eres increíble!")
                         else:
-                            self.compañero.mostrar_mensaje("¡Infiltración completada! Extrayendo...")
+                            self.compañero.mostrar_mensaje("¡Lo lograste! Abriendo un túnel seguro, ¡te saco de ahí ya!")
 
     def dibujar(self, superficie):
         self.surf_temp.blit(self.bg_grid, (0, 0))
